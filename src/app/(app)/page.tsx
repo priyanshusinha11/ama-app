@@ -61,7 +61,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
-        © 2024 True Feedback. All rights reserved @priyanshu.eleven.dev.
+        © 2024 Whisperly. All rights reserved @priyanshu.eleven.dev.
       </footer>
     </>
   );
