@@ -13,5 +13,65 @@
     "title": "Message from MysteryGuest",
     "content": "Do you have any book recommendations?",
     "received": "1 day ago"
+  },
+  {
+    "title": "Message from CoolGuy89",
+    "content": "Let's catch up sometime next week!",
+    "received": "15 minutes ago"
+  },
+  {
+    "title": "Message from TravelLover",
+    "content": "Check out my travel photos from Italy!",
+    "received": "30 minutes ago"
+  },
+  {
+    "title": "Message from Bookworm99",
+    "content": "Have you read the latest thriller by Dan Brown?",
+    "received": "3 hours ago"
+  },
+  {
+    "title": "Message from GamerDude",
+    "content": "Wanna join the game tonight?",
+    "received": "5 hours ago"
+  },
+  {
+    "title": "Message from ChefMaster",
+    "content": "Here's a new recipe you should try!",
+    "received": "8 hours ago"
+  },
+  {
+    "title": "Message from NatureLover",
+    "content": "Went hiking today, it was amazing!",
+    "received": "12 hours ago"
+  },
+  {
+    "title": "Message from FitnessFreak",
+    "content": "Just finished a 10k run, feeling great!",
+    "received": "18 hours ago"
+  },
+  {
+    "title": "Message from MovieBuff",
+    "content": "Watched the latest movie, and it was awesome!",
+    "received": "1 day ago"
+  },
+  {
+    "title": "Message from MusicFanatic",
+    "content": "Check out this new band, you'll love them!",
+    "received": "2 days ago"
+  },
+  {
+    "title": "Message from CatLover",
+    "content": "My cat did the funniest thing today!",
+    "received": "2 days ago"
+  },
+  {
+    "title": "Message from DogLover",
+    "content": "Just adopted a new puppy!",
+    "received": "3 days ago"
+  },
+  {
+    "title": "Message from TechGuru",
+    "content": "Have you seen the latest tech gadgets?",
+    "received": "4 days ago"
   }
 ]

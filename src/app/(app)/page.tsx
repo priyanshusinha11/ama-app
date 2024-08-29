@@ -23,16 +23,17 @@ export default function Home() {
       <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12 bg-gray-800 text-white">
         <section className="text-center mb-8 md:mb-12">
           <h1 className="text-3xl md:text-5xl font-bold">
-            Dive into the World of Anonymous Feedback
+            Step Into the Shadows of Anonymous Conversations
           </h1>
           <p className="mt-3 md:mt-4 text-base md:text-lg">
-            True Feedback - Where your identity remains a secret.
+            Honest Thoughts, Hidden Faces — Where your voice speaks, but your name never does.
           </p>
+
         </section>
 
         {/* Carousel for Messages */}
         <Carousel
-          plugins={[Autoplay({ delay: 2000 })]}
+          plugins={[Autoplay({ delay: 1500})]}
           className="w-full max-w-lg md:max-w-xl"
         >
           <CarouselContent>
@@ -60,7 +61,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
-        © 2023 True Feedback. All rights reserved.
+        © 2024 True Feedback. All rights reserved @priyanshu.eleven.dev.
       </footer>
     </>
   );
