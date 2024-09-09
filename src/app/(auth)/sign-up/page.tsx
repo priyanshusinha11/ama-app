@@ -65,6 +65,7 @@ export default function SignUpForm() {
         checkUsernameUnique();
     }, [username]);
 
+    // Modify the success handler in the `onSubmit` function
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         setIsSubmitting(true);
         try {
@@ -75,7 +76,8 @@ export default function SignUpForm() {
                 description: response.data.message,
             });
 
-            router.replace(`/verify/${username}`);
+            // Redirect directly to dashboard since verification is removed
+            router.replace(`/dashboard`);
 
             setIsSubmitting(false);
         } catch (error) {
@@ -83,10 +85,7 @@ export default function SignUpForm() {
 
             const axiosError = error as AxiosError<ApiResponse>;
 
-            // Default error message
             let errorMessage = axiosError.response?.data.message;
-            ('There was a problem with your sign-up. Please try again.');
-
             toast({
                 title: 'Sign Up Failed',
                 description: errorMessage,
@@ -96,6 +95,7 @@ export default function SignUpForm() {
             setIsSubmitting(false);
         }
     };
+
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-800">
@@ -143,7 +143,7 @@ export default function SignUpForm() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <Input {...field} name="email" />
-                                    <p className='text-muted text-gray-400 text-sm'>We will send you a verification code</p>
+                                    {/* <p className='text-muted text-gray-400 text-sm'>We will send you a verification code</p> */}
                                     <FormMessage />
                                 </FormItem>
                             )}

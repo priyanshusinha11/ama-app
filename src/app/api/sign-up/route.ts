@@ -1,74 +1,58 @@
-import { sendVerficationEmail } from "@/helpers/sendVerificationEmail"
-import dbConnect from "@/lib/dbConnect"
-import UserModel from "@/model/User"
-import bcrypt from "bcryptjs"
+import dbConnect from "@/lib/dbConnect";
+import UserModel from "@/model/User";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-    await dbConnect()
+    await dbConnect();
+
     try {
-        const { username, email, password } = await request.json()
-        const existingUserVerifiedByUsername = await UserModel.findOne({
+        const { username, email, password } = await request.json();
+
+        // Check if a user already exists with the same username
+        const existingUserByUsername = await UserModel.findOne({
             username,
-            isVerified: true
-        })
-        if (existingUserVerifiedByUsername) {
+        });
+        if (existingUserByUsername) {
             return Response.json({
                 success: false,
-                message: "Username is already taken"
-            }, { status: 500 })
+                message: "Username is already taken",
+            }, { status: 400 });
         }
 
-        const existingUserByEmail = await UserModel.findOne({ email })
-        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
+        // Check if a user already exists with the same email
+        const existingUserByEmail = await UserModel.findOne({ email });
         if (existingUserByEmail) {
-            if (existingUserByEmail.isVerified) {
-                return Response.json({
-                    success: false,
-                    message: "user already exists with this email"
-                }, { status: 401 })
-            } else {
-                const hashedPassword = await bcrypt.hash(password, 10)
-                existingUserByEmail.password = hashedPassword
-                existingUserByEmail.verifyCode = verifyCode
-                existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000)
-                await existingUserByEmail.save()
-            }
-        } else {
-            const hashedPassword = await bcrypt.hash(password, 10)
-            const expiryDate = new Date()
-            expiryDate.setHours(expiryDate.getHours() + 1)
-            const newUser = new UserModel({
-                username,
-                email,
-                password: hashedPassword,
-                verifyCode,
-                verifyCodeExpiry: expiryDate,
-                isVerified: false,
-                isAcceptingMessages: true,
-                messages: []
-            })
-            await newUser.save()
-        }
-        const emailResponse = await sendVerficationEmail(
-            email,
-            username,
-            verifyCode
-        )
-        if (!emailResponse) {
             return Response.json({
                 success: false,
-                message: 'Sending of verifcation email failed'
-            }, { status: 500 })
+                message: "User already exists with this email",
+            }, { status: 400 });
         }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user without verification details
+        const newUser = new UserModel({
+            username,
+            email,
+            password: hashedPassword,
+            //isVerified: true,  // Mark the user as verified since there's no verification process
+            isAcceptingMessages: true,
+            messages: [],
+        });
+
+        // Save the new user to the database
+        await newUser.save();
+
         return Response.json({
             success: true,
-            message: "User registerd successfully, Please verify your email"
-        }, { status: 201 })
+            message: "User registered successfully",
+        }, { status: 201 });
     } catch (error) {
-        console.error('Error registering user', error);
+        console.error("Error registering user", error);
         return Response.json({
             success: false,
-            message: "error registering user"
-        }, { status: 500 })
+            message: "Error registering user",
+        }, { status: 500 });
     }
 }
