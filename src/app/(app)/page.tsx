@@ -68,7 +68,7 @@ export default function Home() {
           rel="noopener noreferrer"
           className="underline"
         >
-          @priyanshusinha11
+         Designed and developed by @priyanshusinha11
         </a>.
       </footer>
 
