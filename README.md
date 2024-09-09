@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Whisperply - Anonymous Messaging App
+
+Whisperply is an anonymous messaging application that allows users to receive messages anonymously via unique links. The app features email verification for secure sign-ups and leverages AI to generate message suggestions.
+
+## Live Demo
+
+You can try out the live version of Whisperply here: [Whisperply Live](https://whisperly-beta.vercel.app/)
+
+## Features
+
+- **Anonymous Messaging:** Users can receive messages anonymously through unique links.
+- **AI-Generated Suggestions:** Integrated with Gemini AI to provide intelligent message suggestions.
+- **Dashboard:** A user-friendly dashboard to view received messages.
+
+## Tech Stack
+
+- **Frontend:** 
+  - Next.js
+  - Tailwind CSS with ShadCN UI
+- **Backend:**
+  - Node.js
+  - Express.js
+- **Database:**
+  - MongoDB (Mongoose)
+- **AI Integration:**
+  - Gemini AI
 
 ## Getting Started
 
-First, run the development server:
+To get started with Whisperply locally, follow these steps:
 
+### Prerequisites
+
+Ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v14 or later)
+- [MongoDB](https://www.mongodb.com/try/download/community) (for local development, or use a cloud-based MongoDB service)
+- [Yarn](https://classic.yarnpkg.com/en/docs/install/) (or npm)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/priyanshusinha11/ama-app.git
+
+2. Navigate to the project directory:
+
+ ```bash
+   cd ama-app 
+   ``` 
+3. Install dependencies
 ```bash
-npm run dev
+yarn install
 # or
+npm install
+```
+4. Set up env variables
+```bash
+MONGODB_URI=your_mongodb_uri
+NEXTAUTH_SECRET=your_nextauth_secret
+GEMINI_API_KEY=your_gemini_api_key
+```
+5. Run the development server
+```bash
 yarn dev
 # or
-pnpm dev
-# or
-bun dev
+npm run dev
 ```
+The app will be available at http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To deploy Whisperply, you can use Vercel or any other platform that supports Next.js applications. Follow the platform's deployment instructions to get your app live.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### Try: 
+Live link: https://whisperly-beta.vercel.app/
 
-## Learn More
+### Contributing
 
-To learn more about Next.js, take a look at the following resources:
+Contributions are welcome! Please follow these guidelines:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Fork the repository.
+- Create a new branch (git checkout -b feature-branch).
+- Commit your changes (git commit -am 'Add new feature').
+- Push to the branch (git push origin feature-branch).
+- Create a new Pull Request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
