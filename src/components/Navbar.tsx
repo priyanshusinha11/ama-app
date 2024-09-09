@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -7,7 +7,12 @@ import { Button } from './ui/button';
 import { User } from 'next-auth';
 
 function Navbar() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+
+    if (status === 'loading') {
+        return null; // Prevent rendering until session is available
+    }
+
     const user: User = session?.user;
 
     return (
@@ -17,17 +22,28 @@ function Navbar() {
                     Whisperly
                 </a>
                 {session ? (
-                    <>
-                        <span className="mr-4">
-                            Welcome, {user.username || user.email}
-                        </span>
-                        <Button onClick={() => signOut()} className="w-full md:w-auto bg-slate-100 text-black" variant='outline'>
+                    <div className="flex items-center space-x-4">
+                        <span>Welcome, {user?.username || user?.email}</span>
+                        {/* Dashboard Button */}
+                        <Link href="/dashboard">
+                            <Button className="bg-slate-100 text-black" variant='outline'>
+                                Dashboard
+                            </Button>
+                        </Link>
+                        {/* Logout Button */}
+                        <Button
+                            onClick={() => signOut()}
+                            className="bg-slate-100 text-black"
+                            variant="outline"
+                        >
                             Logout
                         </Button>
-                    </>
+                    </div>
                 ) : (
                     <Link href="/sign-in">
-                        <Button className="w-full md:w-auto bg-slate-100 text-black" variant={'outline'}>Login</Button>
+                        <Button className="bg-slate-100 text-black" variant="outline">
+                            Login
+                        </Button>
                     </Link>
                 )}
             </div>

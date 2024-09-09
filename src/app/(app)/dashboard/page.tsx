@@ -27,7 +27,11 @@ function UserDashboard() {
     setMessages(messages.filter((message) => message._id !== messageId));
   };
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  if (status === 'loading') {
+    return null; 
+  }
 
   const form = useForm({
     resolver: zodResolver(AcceptMessageSchema),
