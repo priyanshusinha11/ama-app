@@ -60,7 +60,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      {/* <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
+      <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
         © 2024 Whisperly. All rights reserved   <br />
         <a
           href="https://github.com/priyanshusinha11"
@@ -70,7 +70,7 @@ export default function Home() {
         >
          Designed and developed by @priyanshusinha11
         </a>.
-      </footer> */}
+      </footer>
 
     </>
   );
