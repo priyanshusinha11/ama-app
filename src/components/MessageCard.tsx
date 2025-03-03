@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
-import { Message } from '@/model/User';
+import { Message } from '@/types/prisma';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     AlertDialog,
@@ -20,31 +20,32 @@ import {
 import { Button } from './ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { ApiResponse } from '@/types/ApiResponse';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-type MessageCardProps = {
+dayjs.extend(relativeTime);
+
+interface MessageCardProps {
     message: Message;
-    onMessageDelete: (messageId: string) => void;
-};
+    onDelete: (messageId: string) => void;
+}
 
-export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
+export function MessageCard({ message, onDelete }: MessageCardProps) {
     const { toast } = useToast();
 
-    const handleDeleteConfirm = async () => {
+    const handleDelete = async () => {
         try {
-            const response = await axios.delete<ApiResponse>(
-                `/api/delete-message/${message._id}`
-            );
-            toast({
-                title: response.data.message,
-            });
-            onMessageDelete(message._id as string);
-
+            const response = await axios.delete<ApiResponse>(`/api/delete-message/${message.id}`);
+            if (response.data.success) {
+                onDelete(message.id);
+                toast({
+                    description: response.data.message,
+                });
+            }
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>;
             toast({
                 title: 'Error',
-                description:
-                    axiosError.response?.data.message ?? 'Failed to delete message',
+                description: axiosError.response?.data.message ?? 'Failed to delete message',
                 variant: 'destructive',
             });
         }
@@ -73,7 +74,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
                                 <AlertDialogCancel>
                                     Cancel
                                 </AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeleteConfirm}>
+                                <AlertDialogAction onClick={handleDelete}>
                                     Continue
                                 </AlertDialogAction>
                             </AlertDialogFooter>
@@ -81,7 +82,7 @@ export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
                     </AlertDialog>
                 </div>
                 <div className="text-sm">
-                    {dayjs(message.createdAt).format('MMM D, YYYY h:mm A')}
+                    {dayjs(message.createdAt).fromNow()}
                 </div>
             </CardHeader>
             <CardContent></CardContent>
