@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
-import { Message, Channel, MessageWithChannel } from '@/types/prisma';
+import { Message } from '@/types/prisma';
 import { ApiResponse, MessageResponse, ChannelResponse, UserResponse } from '@/types/ApiResponse';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
 import * as z from 'zod';
@@ -60,6 +60,8 @@ type Channel = {
   id: string;
   name: string;
   slug: string;
+  createdAt: Date;
+  userId: string;
 };
 
 type MessageWithChannel = Message & {

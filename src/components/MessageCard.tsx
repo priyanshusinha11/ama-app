@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { Trash2, Clock, MessageSquare, Hash } from 'lucide-react';
-import { Message, Channel } from '@/types/prisma';
+import { Message, Channel as PrismaChannel } from '@/types/prisma';
 import { ApiResponse } from '@/types/ApiResponse';
 import { useToast } from './ui/use-toast';
 import { Button } from './ui/button';
@@ -28,7 +28,7 @@ dayjs.extend(relativeTime);
 interface MessageCardProps {
     message: Message;
     onDelete: (messageId: string) => void;
-    channel?: Channel | null;
+    channel?: PrismaChannel | null;
 }
 
 export function MessageCard({ message, onDelete, channel }: MessageCardProps) {

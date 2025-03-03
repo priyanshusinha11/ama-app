@@ -86,7 +86,7 @@ const StoryCardPreview: FC = () => (
             <span>23h left</span>
           </div>
         </div>
-        <p className="text-gray-200 whitespace-pre-wrap">Just had the most amazing experience today! Sometimes life surprises you in the best ways. Grateful for these moments that remind us why we're here.</p>
+        <p className="text-gray-200 whitespace-pre-wrap">Just had the most amazing experience today! Sometimes life surprises you in the best ways. Grateful for these moments that remind us why we&apos;re here.</p>
         <div className="text-xs text-gray-500 mt-2">
           Posted 1 hour ago
         </div>
@@ -237,9 +237,9 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Link href="/sign-up">
+              <Link href="/messages">
                 <GlowButton>
-                  Get Started <ArrowRight className="h-4 w-4" />
+                  Create Your Profile <User className="h-4 w-4 ml-2" />
                 </GlowButton>
               </Link>
               <Link href="/feed">
@@ -448,9 +448,9 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <Link href="/sign-up">
+              <Link href="/messages">
                 <GlowButton className="text-lg px-8 py-4">
-                  Create Account <ArrowRight className="h-5 w-5 ml-2" />
+                  Create Your Profile <User className="h-5 w-5 ml-2" />
                 </GlowButton>
               </Link>
               <Link href="/feed">
