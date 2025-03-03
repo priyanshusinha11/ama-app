@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDebounceCallback } from "usehooks-ts";
 import * as z from 'zod';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -93,7 +94,7 @@ export default function SignUpForm() {
 
             toast({
                 title: 'Account Created!',
-                description: 'Welcome to Whisperly. Your journey begins now.',
+                description: 'Welcome to CryptiCat. Your purr-sonal journey begins meow!',
                 className: 'bg-black/80 border-violet-500 text-white',
             });
 
@@ -134,14 +135,18 @@ export default function SignUpForm() {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <div className="inline-block p-4 bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm rounded-full mb-4 border border-violet-500/20">
-                        <MessageSquare className="h-10 w-10 text-violet-400" />
-                    </div>
+                    <Image
+                        src="/bg-free-cat.png"
+                        alt="CryptiCat Logo"
+                        width={60}
+                        height={60}
+                        className="h-16 w-16 mx-auto mb-4"
+                    />
                     <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200">
-                        Join Whisperly
+                        Join the CryptiCat Pride
                     </h1>
                     <p className="text-gray-400">
-                        Create your account to start your anonymous journey
+                        Create your account to start your stealthy, anonymous adventure
                     </p>
                 </div>
 

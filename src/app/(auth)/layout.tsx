@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Whisperly - Anonymous Messaging',
+  title: 'CryptiCat - Anonymous Messaging',
   description: 'The future of anonymous messaging',
 }
 

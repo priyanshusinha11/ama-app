@@ -1,10 +1,14 @@
-# Whisperly - Anonymous Messaging Application
+# CryptiCat - Anonymous Messaging Application
 
-Whisperly is a modern anonymous messaging application that allows users to receive messages anonymously via unique links. The app features user authentication, channels for organizing messages, and stories functionality with AI-powered message suggestions.
+CryptiCat is a purr-fectly stealthy anonymous messaging application that allows users to receive messages anonymously via unique links. The app features secure user authentication, dedicated channels for organizing messages, and ephemeral stories functionality that vanish like a cat in the night after 24 hours. With AI-powered message suggestions, CryptiCat offers a paw-some experience for those who value privacy and creative expression.
+
+<div align="center">
+  <img src="public/bg-free-cat.png" alt="CryptiCat Logo" width="100" height="100" />
+</div>
 
 ## Live Demo
 
-You can try out the live version of Whisperly here: [Whisperly Live](https://whisperly-beta.vercel.app/)
+You can try out the live version of CryptiCat here: [CryptiCat Live](https://whisperly-beta.vercel.app/)
 
 ## Features
 
@@ -34,7 +38,7 @@ You can try out the live version of Whisperly here: [Whisperly Live](https://whi
 
 ## Getting Started
 
-To get started with Whisperly locally, follow these steps:
+To get started with CryptiCat locally, follow these steps:
 
 ### Prerequisites
 
@@ -111,9 +115,9 @@ The application uses PostgreSQL with Prisma ORM and includes the following model
 
 ## Deployment
 
-Whisperly is currently deployed on Vercel and can be accessed at: [https://whisperly-beta.vercel.app/](https://whisperly-beta.vercel.app/)
+CryptiCat is currently deployed on Vercel and can be accessed at: [https://whisperly-beta.vercel.app/](https://whisperly-beta.vercel.app/)
 
-To deploy Whisperly yourself, you can use Vercel or any other platform that supports Next.js applications:
+To deploy CryptiCat yourself, you can use Vercel or any other platform that supports Next.js applications:
 
 1. Push your code to a GitHub repository
 2. Connect your repository to Vercel

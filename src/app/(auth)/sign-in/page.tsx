@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Loader2, MessageSquare, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Animated gradient background component
 const AnimatedBackground = () => {
@@ -106,9 +107,13 @@ function SignInFormContent() {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <div className="inline-block p-4 bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm rounded-full mb-4 border border-violet-500/20">
-                        <MessageSquare className="h-10 w-10 text-violet-400" />
-                    </div>
+                    <Image
+                        src="/bg-free-cat.png"
+                        alt="CryptiCat Logo"
+                        width={60}
+                        height={60}
+                        className="mx-auto mb-6"
+                    />
                     <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200">
                         Welcome Back
                     </h1>

@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
 import { Menu, X, MessageSquare, LogOut, User, ChevronRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 function Navbar() {
     const { data: session, status } = useSession();
@@ -28,11 +29,15 @@ function Navbar() {
             <div className="container mx-auto">
                 <div className="flex justify-between items-center">
                     <Link href="/" className="text-2xl font-bold flex items-center">
-                        <div className="p-1.5 bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm rounded-md border border-violet-500/20 mr-2">
-                            <MessageSquare className="h-5 w-5 text-violet-400" />
-                        </div>
+                        <Image
+                            src="/bg-free-cat.png"
+                            alt="CryptiCat Logo"
+                            width={36}
+                            height={36}
+                            className="h-9 w-9 mr-2"
+                        />
                         <span className="hidden sm:inline bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200">
-                            Whisperly
+                            CryptiCat
                         </span>
                     </Link>
 

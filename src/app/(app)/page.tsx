@@ -21,6 +21,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 // Animated gradient background component
 const AnimatedBackground = () => {
@@ -212,7 +213,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <Badge variant="outline" className="mb-6 py-1.5 px-4 border-violet-500 text-violet-400 bg-violet-500/10 backdrop-blur-sm">
-                Anonymous Messaging • 24-Hour Stories • Complete Privacy
+                Purr-fectly Anonymous • 24-Hour Stories • Feline Privacy
               </Badge>
             </motion.div>
 
@@ -222,14 +223,14 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200"
             >
-              Express Yourself Without Limits
+              Let Your Curiosity Roam Free
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-gray-400 mb-8 max-w-2xl mx-auto">Share anonymous messages or post ephemeral stories that vanish after 24 hours. Experience true freedom of expression in a safe, private environment.</motion.p>
+              className="text-gray-400 mb-8 max-w-2xl mx-auto">Share anonymous messages or post paw-some stories that vanish after 24 hours. Embrace your nine lives of expression in a safe, private environment.</motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -266,20 +267,20 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <Badge variant="outline" className="mb-4 py-1 px-3 border-cyan-500 text-cyan-400 bg-cyan-500/10 backdrop-blur-sm">
-                NEW FEATURE
+                MEOW FEATURE
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">
-                Anonymous Stories That Disappear After 24 Hours
+                Stealthy Stories That Vanish Like a Cat in the Night
               </h2>
               <p className="text-gray-400 mb-6">
-                Share your thoughts, rants, secrets, and moments without the fear of permanent digital footprints. Our stories feature gives you the freedom to express yourself knowing your content will automatically vanish after 24 hours.
+                Share your thoughts, purr-sonal secrets, and cat-tastic moments without the fear of permanent digital pawprints. Our stories feature gives you the freedom to express yourself knowing your content will disappear into the shadows after 24 hours.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
-                  { icon: Shield, text: "Completely anonymous - no one knows who posted" },
-                  { icon: Clock, text: "Auto-deletion after 24 hours - no exceptions" },
-                  { icon: Heart, text: "Like stories and see what's trending" },
-                  { icon: Flame, text: "Browse 'Hot' stories or see the latest in 'New'" }
+                  { icon: Shield, text: "Completely anonymous - even your cat won't know who posted" },
+                  { icon: Clock, text: "Auto-deletion after 24 hours - gone like catnip in the wind" },
+                  { icon: Heart, text: "Like stories and see what's trending in the alley" },
+                  { icon: Flame, text: "Browse 'Hot' stories or pounce on the latest in 'New'" }
                 ].map((item, index) => (
                   <li key={index} className="flex items-start">
                     <div className="mr-3 mt-1 text-violet-400">
@@ -311,7 +312,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400"
             >
-              Why Choose Whisperly?
+              Why Choose CryptiCat?
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -319,45 +320,45 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-gray-400 max-w-2xl mx-auto"
             >
-              Our platform offers cutting-edge features designed for the modern digital age
+              Our platform offers purr-fect features designed for the modern feline digital lifestyle
             </motion.p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FeatureCard
               icon={Shield}
-              title="Complete Anonymity"
-              description="Send messages and share stories without revealing your identity. Your privacy is our top priority."
+              title="Paw-sitively Anonymous"
+              description="Send messages and share stories without revealing your identity. Your privacy is protected like a cat guarding its territory."
               delay={0.2}
             />
             <FeatureCard
               icon={Clock}
-              title="Ephemeral Content"
-              description="Stories automatically disappear after 24 hours, leaving no permanent record behind."
+              title="Vanishing Content"
+              description="Stories disappear after 24 hours, leaving no trace behind - just like a cat's silent footsteps."
               delay={0.3}
             />
             <FeatureCard
               icon={Flame}
-              title="Trending Stories"
-              description="Discover what's hot with our trending stories feature, showing the most liked content."
+              title="Hot on the Prowl"
+              description="Discover what's trending with our hot stories feature, showing the most liked content in the neighborhood."
               delay={0.4}
             />
             <FeatureCard
               icon={User}
-              title="Custom Profiles"
-              description="Create your unique profile link to share with friends and receive anonymous messages."
+              title="Purr-sonal Profiles"
+              description="Create your unique profile link to share with friends and receive anonymous messages in your territory."
               delay={0.5}
             />
             <FeatureCard
               icon={Sparkles}
-              title="Vibrant Community"
-              description="Join a community of users sharing thoughts, experiences, and moments anonymously."
+              title="Curious Community"
+              description="Join a community of cool cats sharing thoughts, experiences, and moments with feline discretion."
               delay={0.6}
             />
             <FeatureCard
               icon={MessageSquare}
-              title="Message Management"
-              description="Easily organize, filter, and respond to the messages you receive."
+              title="Message Grooming"
+              description="Easily organize, filter, and respond to the messages in your inbox - keep it as tidy as a well-groomed cat."
               delay={0.7}
             />
           </div>
@@ -401,21 +402,21 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Testimonial
-              quote="The 24-hour stories feature is brilliant! I can share my thoughts freely knowing they'll disappear. It's liberating!"
+              quote="The 24-hour stories feature is paw-some! I can share my thoughts freely knowing they'll disappear like a cat in the night. It's purr-fectly liberating!"
               author="Alex K."
-              position="Content Creator"
+              position="Curious Content Creator"
               delay={0.2}
             />
             <Testimonial
-              quote="I love browsing the stories feed to see what others are thinking. The anonymity creates such authentic content."
+              quote="I love prowling through the stories feed to see what others are thinking. The anonymity creates such authentic content, it's the cat's meow!"
               author="Jamie T."
-              position="Privacy Advocate"
+              position="Privacy Paw-vocate"
               delay={0.3}
             />
             <Testimonial
-              quote="The perfect balance of anonymous messaging and temporary stories. It's like therapy but free and more fun!"
+              quote="The purr-fect balance of anonymous messaging and temporary stories. It's like catnip for my thoughts - addictive and so satisfying!"
               author="Morgan L."
-              position="Social Media Influencer"
+              position="Social Media Cat-fluencer"
               delay={0.4}
             />
           </div>
@@ -432,7 +433,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-3xl md:text-4xl font-bold mb-4 text-white"
             >
-              Ready to Express Yourself Freely?
+              Ready to Let Your Curiosity Out of the Bag?
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -440,7 +441,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-gray-300 max-w-2xl mx-auto mb-8"
             >
-              Create your account now to send anonymous messages and share stories that disappear after 24 hours.
+              Create your account now to send anonymous messages and share stories that vanish like a cat in the night after 24 hours.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -471,11 +472,20 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">Whisperly</h3>
+              <div className="flex items-center">
+                <Image
+                  src="/bg-free-cat.png"
+                  alt="CryptiCat Logo"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 mr-2"
+                />
+                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">CryptiCat</h3>
+              </div>
               <p className="text-gray-500 mt-2">Anonymous messaging & 24-hour stories</p>
             </div>
             <div className="text-gray-500 text-sm">
-              © 2024 Whisperly. All rights reserved <br />
+              © 2024 CryptiCat. All rights reserved <br />
               <a
                 href="https://github.com/priyanshusinha11"
                 target="_blank"

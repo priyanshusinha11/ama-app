@@ -8,7 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Whisperly - Anonymous Messaging',
+    title: 'CryptiCat - Anonymous Messaging',
     description: 'Send messages anonymously and receive messages without knowing who sent them',
 };
 
