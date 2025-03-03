@@ -1,17 +1,15 @@
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
-    await dbConnect();
-
     try {
         const { username, email, password } = await request.json();
 
         // Check if a user already exists with the same username
-        const existingUserByUsername = await UserModel.findOne({
-            username,
+        const existingUserByUsername = await prisma.user.findUnique({
+            where: { username },
         });
+
         if (existingUserByUsername) {
             return Response.json({
                 success: false,
@@ -20,7 +18,10 @@ export async function POST(request: Request) {
         }
 
         // Check if a user already exists with the same email
-        const existingUserByEmail = await UserModel.findOne({ email });
+        const existingUserByEmail = await prisma.user.findUnique({
+            where: { email },
+        });
+
         if (existingUserByEmail) {
             return Response.json({
                 success: false,
@@ -31,18 +32,15 @@ export async function POST(request: Request) {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user without verification details
-        const newUser = new UserModel({
-            username,
-            email,
-            password: hashedPassword,
-            //isVerified: true,  // Mark the user as verified since there's no verification process
-            isAcceptingMessages: true,
-            messages: [],
+        // Create a new user
+        const newUser = await prisma.user.create({
+            data: {
+                username,
+                email,
+                password: hashedPassword,
+                isAcceptingMessages: true,
+            },
         });
-
-        // Save the new user to the database
-        await newUser.save();
 
         return Response.json({
             success: true,

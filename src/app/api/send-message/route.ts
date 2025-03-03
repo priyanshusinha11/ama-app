@@ -1,13 +1,12 @@
-import UserModel from '@/model/User';
-import dbConnect from '@/lib/dbConnect';
-import { Message } from '@/model/User';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
-    await dbConnect();
     const { username, content } = await request.json();
 
     try {
-        const user = await UserModel.findOne({ username }).exec();
+        const user = await prisma.user.findUnique({
+            where: { username },
+        });
 
         if (!user) {
             return Response.json(
@@ -19,14 +18,16 @@ export async function POST(request: Request) {
         if (!user.isAcceptingMessages) {
             return Response.json(
                 { message: 'User is not accepting messages', success: false },
-                { status: 403 } 
+                { status: 403 }
             );
         }
 
-        const newMessage = { content, createdAt: new Date() };
-
-        user.messages.push(newMessage as Message);
-        await user.save();
+        const newMessage = await prisma.message.create({
+            data: {
+                content,
+                userId: user.id,
+            },
+        });
 
         return Response.json(
             { message: 'Message sent successfully', success: true },

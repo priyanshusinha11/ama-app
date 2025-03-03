@@ -1,9 +1,6 @@
-import UserModel from '@/model/User';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
-import dbConnect from '@/lib/dbConnect';
 import { User } from 'next-auth';
-import { Message } from '@/model/User';
-import { NextRequest } from 'next/server';
 import { authOptions } from '../../auth/[...nextauth]/options';
 
 export async function DELETE(
@@ -11,9 +8,9 @@ export async function DELETE(
     { params }: { params: { messageid: string } }
 ) {
     const messageId = params.messageid;
-    await dbConnect();
     const session = await getServerSession(authOptions);
     const _user: User = session?.user;
+
     if (!session || !_user) {
         return Response.json(
             { success: false, message: 'Not authenticated' },
@@ -22,17 +19,25 @@ export async function DELETE(
     }
 
     try {
-        const updateResult = await UserModel.updateOne(
-            { _id: _user._id },
-            { $pull: { messages: { _id: messageId } } }
-        );
+        const message = await prisma.message.findFirst({
+            where: {
+                id: messageId,
+                userId: _user._id
+            }
+        });
 
-        if (updateResult.modifiedCount === 0) {
+        if (!message) {
             return Response.json(
-                { message: 'Message not found or already deleted', success: false },
+                { message: 'Message not found or unauthorized', success: false },
                 { status: 404 }
             );
         }
+
+        await prisma.message.delete({
+            where: {
+                id: messageId
+            }
+        });
 
         return Response.json(
             { message: 'Message deleted', success: true },

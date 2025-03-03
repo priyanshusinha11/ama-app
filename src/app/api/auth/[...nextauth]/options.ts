@@ -1,8 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
+import { prisma } from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -14,14 +13,16 @@ export const authOptions: NextAuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials: any): Promise<any> {
-                await dbConnect();
                 try {
-                    const user = await UserModel.findOne({
-                        $or: [
-                            { email: credentials.identifier },
-                            { username: credentials.identifier },
-                        ],
+                    const user = await prisma.user.findFirst({
+                        where: {
+                            OR: [
+                                { email: credentials.identifier },
+                                { username: credentials.identifier },
+                            ],
+                        },
                     });
+
                     if (!user) {
                         throw new Error('No user found with this email or username');
                     }
@@ -30,6 +31,7 @@ export const authOptions: NextAuthOptions = {
                         credentials.password,
                         user.password
                     );
+
                     if (isPasswordCorrect) {
                         return user;
                     } else {
@@ -44,7 +46,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token._id = user._id?.toString();
+                token._id = user.id;
                 token.isAcceptingMessages = user.isAcceptingMessages;
                 token.username = user.username;
             }

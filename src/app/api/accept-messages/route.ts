@@ -1,13 +1,9 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
+import { prisma } from '@/lib/prisma';
 import { User } from 'next-auth';
 
 export async function POST(request: Request) {
-    
-    await dbConnect();
-
     const session = await getServerSession(authOptions);
     const user: User = session?.user;
     if (!session || !session.user) {
@@ -21,15 +17,12 @@ export async function POST(request: Request) {
     const { acceptMessages } = await request.json();
 
     try {
-       
-        const updatedUser = await UserModel.findByIdAndUpdate(
-            userId,
-            { isAcceptingMessages: acceptMessages },
-            { new: true }
-        );
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { isAcceptingMessages: acceptMessages },
+        });
 
         if (!updatedUser) {
-           
             return Response.json(
                 {
                     success: false,
@@ -39,7 +32,6 @@ export async function POST(request: Request) {
             );
         }
 
-       
         return Response.json(
             {
                 success: true,
@@ -57,12 +49,7 @@ export async function POST(request: Request) {
     }
 }
 
-
 export async function GET(request: Request) {
-  
-    await dbConnect();
-
-   
     const session = await getServerSession(authOptions);
     const user = session?.user;
 
@@ -74,18 +61,17 @@ export async function GET(request: Request) {
     }
 
     try {
-        
-        const foundUser = await UserModel.findById(user._id);
+        const foundUser = await prisma.user.findUnique({
+            where: { id: user._id }
+        });
 
         if (!foundUser) {
-           
             return Response.json(
                 { success: false, message: 'User not found' },
                 { status: 404 }
             );
         }
 
-       
         return Response.json(
             {
                 success: true,
