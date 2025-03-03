@@ -12,7 +12,10 @@ import {
   ArrowRight,
   User,
   Zap,
-  LucideIcon
+  LucideIcon,
+  Clock,
+  Heart,
+  Flame
 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { motion } from 'framer-motion';
@@ -56,6 +59,44 @@ const FeatureCard: FC<FeatureCardProps> = ({ icon: Icon, title, description, del
         <h3 className="text-xl font-bold mb-2 text-white group-hover:text-violet-400 transition-colors">{title}</h3>
         <p className="text-gray-400">{description}</p>
       </CardContent>
+    </Card>
+  </motion.div>
+);
+
+// Story card preview component
+const StoryCardPreview: FC = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="relative w-full max-w-md mx-auto"
+  >
+    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-xl blur-xl transform-gpu"></div>
+    <Card className="border border-gray-800 bg-black/60 backdrop-blur-sm shadow-lg overflow-hidden relative z-10">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-gradient-to-br from-violet-600/20 to-indigo-600/20 p-2 rounded-full">
+              <User className="h-4 w-4 text-violet-400" />
+            </div>
+            <span className="text-gray-300 font-medium">@anonymous</span>
+          </div>
+          <div className="flex items-center text-xs text-gray-500">
+            <Clock className="h-3 w-3 mr-1" />
+            <span>23h left</span>
+          </div>
+        </div>
+        <p className="text-gray-200 whitespace-pre-wrap">Just had the most amazing experience today! Sometimes life surprises you in the best ways. Grateful for these moments that remind us why we're here.</p>
+        <div className="text-xs text-gray-500 mt-2">
+          Posted 1 hour ago
+        </div>
+      </CardContent>
+      <CardFooter className="pt-0 flex justify-between items-center">
+        <div className="text-sm flex items-center gap-1 text-pink-500">
+          <Heart className="h-4 w-4 fill-pink-500 text-pink-500" />
+          <span>24</span>
+        </div>
+      </CardFooter>
     </Card>
   </motion.div>
 );
@@ -171,7 +212,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <Badge variant="outline" className="mb-6 py-1.5 px-4 border-violet-500 text-violet-400 bg-violet-500/10 backdrop-blur-sm">
-                Completely Anonymous • End-to-End Encrypted
+                Anonymous Messaging • 24-Hour Stories • Complete Privacy
               </Badge>
             </motion.div>
 
@@ -181,14 +222,14 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200"
             >
-              Step Into the Future of Anonymous Messaging
+              Express Yourself Without Limits
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-gray-400 mb-8 max-w-2xl mx-auto">Experience the freedom of anonymous messaging with our platform. Share your thoughts without revealing your identity. It&apos;s time to express yourself freely!</motion.p>
+              className="text-gray-400 mb-8 max-w-2xl mx-auto">Share anonymous messages or post ephemeral stories that vanish after 24 hours. Experience true freedom of expression in a safe, private environment.</motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -201,9 +242,9 @@ export default function Home() {
                   Get Started <ArrowRight className="h-4 w-4" />
                 </GlowButton>
               </Link>
-              <Link href="/sign-in">
+              <Link href="/feed">
                 <Button variant="outline" className="border-gray-700 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white">
-                  Sign In <ChevronRight className="h-4 w-4 ml-2" />
+                  Explore Stories <Sparkles className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
             </motion.div>
@@ -213,6 +254,51 @@ export default function Home() {
         {/* Floating elements */}
         <div className="absolute top-1/4 left-10 w-24 h-24 rounded-full bg-violet-600/10 blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-10 w-32 h-32 rounded-full bg-indigo-600/10 blur-3xl animate-pulse" />
+      </section>
+
+      {/* Stories Preview Section */}
+      <section className="py-16 md:py-24 relative">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Badge variant="outline" className="mb-4 py-1 px-3 border-cyan-500 text-cyan-400 bg-cyan-500/10 backdrop-blur-sm">
+                NEW FEATURE
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">
+                Anonymous Stories That Disappear After 24 Hours
+              </h2>
+              <p className="text-gray-400 mb-6">
+                Share your thoughts, rants, secrets, and moments without the fear of permanent digital footprints. Our stories feature gives you the freedom to express yourself knowing your content will automatically vanish after 24 hours.
+              </p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  { icon: Shield, text: "Completely anonymous - no one knows who posted" },
+                  { icon: Clock, text: "Auto-deletion after 24 hours - no exceptions" },
+                  { icon: Heart, text: "Like stories and see what's trending" },
+                  { icon: Flame, text: "Browse 'Hot' stories or see the latest in 'New'" }
+                ].map((item, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="mr-3 mt-1 text-violet-400">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-gray-300">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href="/feed">
+                <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-0">
+                  Explore Stories <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            <StoryCardPreview />
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -241,31 +327,31 @@ export default function Home() {
             <FeatureCard
               icon={Shield}
               title="Complete Anonymity"
-              description="Send messages without revealing your identity. Your privacy is our top priority."
+              description="Send messages and share stories without revealing your identity. Your privacy is our top priority."
               delay={0.2}
             />
             <FeatureCard
-              icon={Lock}
-              title="End-to-End Encryption"
-              description="All messages are encrypted, ensuring only the intended recipient can read them."
+              icon={Clock}
+              title="Ephemeral Content"
+              description="Stories automatically disappear after 24 hours, leaving no permanent record behind."
               delay={0.3}
             />
             <FeatureCard
-              icon={Zap}
-              title="Lightning Fast"
-              description="Our optimized platform delivers messages instantly with minimal latency."
+              icon={Flame}
+              title="Trending Stories"
+              description="Discover what's hot with our trending stories feature, showing the most liked content."
               delay={0.4}
             />
             <FeatureCard
               icon={User}
               title="Custom Profiles"
-              description="Create your unique profile link to share with friends and followers."
+              description="Create your unique profile link to share with friends and receive anonymous messages."
               delay={0.5}
             />
             <FeatureCard
               icon={Sparkles}
-              title="AI-Powered Suggestions"
-              description="Get intelligent message suggestions when you're not sure what to say."
+              title="Vibrant Community"
+              description="Join a community of users sharing thoughts, experiences, and moments anonymously."
               delay={0.6}
             />
             <FeatureCard
@@ -285,7 +371,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <AnimatedCounter value={50000} label="Active Users" delay={0.1} />
               <AnimatedCounter value={1000000} label="Messages Sent" delay={0.2} />
-              <AnimatedCounter value={99.9} label="Uptime Percentage" delay={0.3} />
+              <AnimatedCounter value={25000} label="Stories Shared" delay={0.3} />
             </div>
           </div>
         </div>
@@ -315,19 +401,19 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Testimonial
-              quote="Whisperly has transformed how I receive feedback. It&apos;s anonymous yet constructive!"
+              quote="The 24-hour stories feature is brilliant! I can share my thoughts freely knowing they'll disappear. It's liberating!"
               author="Alex K."
               position="Content Creator"
               delay={0.2}
             />
             <Testimonial
-              quote="The interface is sleek and the encryption gives me peace of mind. Best anonymous messaging platform I've used."
+              quote="I love browsing the stories feed to see what others are thinking. The anonymity creates such authentic content."
               author="Jamie T."
               position="Privacy Advocate"
               delay={0.3}
             />
             <Testimonial
-              quote="I love how easy it is to share my profile link with my audience. The message suggestions are surprisingly helpful!"
+              quote="The perfect balance of anonymous messaging and temporary stories. It's like therapy but free and more fun!"
               author="Morgan L."
               position="Social Media Influencer"
               delay={0.4}
@@ -346,7 +432,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="text-3xl md:text-4xl font-bold mb-4 text-white"
             >
-              Ready to Step Into the Future?
+              Ready to Express Yourself Freely?
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -354,17 +440,26 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-gray-300 max-w-2xl mx-auto mb-8"
             >
-              Create your account now and experience the next generation of anonymous communication.
+              Create your account now to send anonymous messages and share stories that disappear after 24 hours.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link href="/sign-up">
                 <GlowButton className="text-lg px-8 py-4">
-                  Get Started Now <ArrowRight className="h-5 w-5 ml-2" />
+                  Create Account <ArrowRight className="h-5 w-5 ml-2" />
                 </GlowButton>
+              </Link>
+              <Link href="/feed">
+                <Button
+                  variant="outline"
+                  className="text-lg px-8 py-4 border-gray-700 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white"
+                >
+                  Browse Stories <Sparkles className="h-5 w-5 ml-2" />
+                </Button>
               </Link>
             </motion.div>
           </div>
@@ -377,7 +472,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
               <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-400">Whisperly</h3>
-              <p className="text-gray-500 mt-2">The future of anonymous messaging</p>
+              <p className="text-gray-500 mt-2">Anonymous messaging & 24-hour stories</p>
             </div>
             <div className="text-gray-500 text-sm">
               © 2024 Whisperly. All rights reserved <br />
