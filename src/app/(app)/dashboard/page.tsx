@@ -15,16 +15,23 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 
 type FormData = z.infer<typeof AcceptMessageSchema>;
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
+  const router = useRouter();
 
   const { toast } = useToast();
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push('/sign-in');
+    },
+  });
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter((message) => message.id !== messageId));
@@ -41,7 +48,7 @@ function UserDashboard() {
   const acceptMessages = watch('acceptMessages');
 
   const fetchAcceptMessages = useCallback(async () => {
-    if (!session?.user) return;
+    if (!session?.user?.id) return;
 
     setIsSwitchLoading(true);
     try {
@@ -60,10 +67,10 @@ function UserDashboard() {
     } finally {
       setIsSwitchLoading(false);
     }
-  }, [setValue, toast, session?.user]);
+  }, [setValue, toast, session?.user?.id]);
 
   const fetchMessages = useCallback(async () => {
-    if (!session?.user) return;
+    if (!session?.user?.id) return;
 
     setIsLoading(true);
     try {
@@ -79,17 +86,18 @@ function UserDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, session?.user]);
+  }, [toast, session?.user?.id]);
 
   useEffect(() => {
-    if (session?.user) {
-      fetchAcceptMessages();
-      fetchMessages();
+    if (session?.user?.id) {
+      Promise.all([fetchAcceptMessages(), fetchMessages()]).finally(() => {
+        setIsLoading(false);
+      });
     }
-  }, [session?.user, fetchAcceptMessages, fetchMessages]);
+  }, [session?.user?.id, fetchAcceptMessages, fetchMessages]);
 
   const onSubmit = async (data: FormData) => {
-    if (!session?.user) return;
+    if (!session?.user?.id) return;
 
     setIsSwitchLoading(true);
     try {
@@ -117,7 +125,7 @@ function UserDashboard() {
     }
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -125,12 +133,8 @@ function UserDashboard() {
     );
   }
 
-  if (!session?.user) {
-    return null;
-  }
-
   const baseUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : '';
-  const profileUrl = `${baseUrl}/u/${session.user.username}`;
+  const profileUrl = `${baseUrl}/u/${session?.user?.username}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);

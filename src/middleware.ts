@@ -8,14 +8,18 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request });
-    const url = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
-    if (token && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up'))) {
+    // Auth routes - if logged in, redirect to dashboard
+    if (token && (pathname === '/sign-in' || pathname === '/sign-up')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    if (!token && url.pathname.startsWith('/dashboard')) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
+    // Protected routes - if not logged in, redirect to sign-in
+    if (!token && pathname.startsWith('/dashboard')) {
+        const signInUrl = new URL('/sign-in', request.url);
+        signInUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(signInUrl);
     }
 
     return NextResponse.next();
