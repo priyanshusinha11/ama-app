@@ -37,6 +37,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator
 } from "@/components/ui/select";
 
 // Animated gradient background component
@@ -279,8 +280,8 @@ function UserDashboard() {
               <div className="pt-2">
                 <p className="text-sm text-gray-400 mb-2">
                   {acceptMessages
-                    ? 'You are currently accepting anonymous messages.'
-                    : 'You are not accepting anonymous messages.'}
+                    ? 'You are currently accepting messages from unknown senders.'
+                    : 'You are not accepting messages from unknown senders.'}
                 </p>
               </div>
             </CardContent>
@@ -311,31 +312,74 @@ function UserDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-black/60 p-3 rounded-md border border-gray-800 flex items-center justify-between">
-                <div className="truncate text-gray-300 text-sm">
-                  {window.location.origin}/u/{session?.user?.username}
+              <div>
+                <p className="text-sm text-gray-400 mb-2">Main profile link:</p>
+                <div className="bg-black/60 p-3 rounded-md border border-gray-800 flex items-center justify-between">
+                  <div className="truncate text-gray-300 text-sm">
+                    {window.location.origin}/u/{session?.user?.username}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={copyToClipboard}
+                    className="ml-2 text-gray-400 hover:text-white hover:bg-black/40"
+                  >
+                    {isCopied ? (
+                      <span className="text-green-400 flex items-center">
+                        <Check className="h-4 w-4 mr-1" />
+                        Copied!
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <Copy className="h-4 w-4 mr-1" />
+                        Copy
+                      </span>
+                    )}
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={copyToClipboard}
-                  className="ml-2 text-gray-400 hover:text-white hover:bg-black/40"
-                >
-                  {isCopied ? (
-                    <span className="text-green-400 flex items-center">
-                      <Check className="h-4 w-4 mr-1" />
-                      Copied!
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <Copy className="h-4 w-4 mr-1" />
-                      Copy
-                    </span>
-                  )}
-                </Button>
               </div>
+
+              {channels.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Channel links:</p>
+                  <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1">
+                    {channels.map((channel) => (
+                      <div
+                        key={channel.id}
+                        className="bg-black/60 p-2 rounded-md border border-gray-800 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-black/60 border-cyan-500/50 text-cyan-300 backdrop-blur-sm">
+                            <Hash className="h-3 w-3 mr-1" /> {channel.name}
+                          </Badge>
+                          <div className="truncate text-gray-400 text-xs hidden sm:block">
+                            {window.location.origin}/u/{session?.user?.username}/{channel.slug}
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const url = `${window.location.origin}/u/${session?.user?.username}/${channel.slug}`;
+                            navigator.clipboard.writeText(url);
+                            toast({
+                              title: 'Copied!',
+                              description: `${channel.name} link copied to clipboard.`,
+                              className: 'bg-black/80 border-violet-500 text-white',
+                            });
+                          }}
+                          className="ml-2 text-gray-400 hover:text-white hover:bg-black/40"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <p className="text-sm text-gray-400">
-                Share this link with anyone you want to receive anonymous messages from. They won't know who you are unless you tell them.
+                Share these links with anyone you want to receive anonymous messages from. People who use these links will know they're messaging you, but you won't know who sent the messages.
               </p>
             </CardContent>
           </Card>
@@ -376,11 +420,25 @@ function UserDashboard() {
                   <SelectValue placeholder="Filter by channel" />
                 </SelectTrigger>
                 <SelectContent className="bg-black/90 border-gray-700">
-                  <SelectItem value="all">All messages</SelectItem>
-                  <SelectItem value="none">No channel</SelectItem>
+                  <SelectItem value="all" className="flex items-center">
+                    <div className="flex items-center">
+                      <MessageSquare className="h-3.5 w-3.5 mr-2 text-violet-400" />
+                      All messages
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="none" className="flex items-center">
+                    <div className="flex items-center">
+                      <MessageSquare className="h-3.5 w-3.5 mr-2 text-gray-400" />
+                      No channel
+                    </div>
+                  </SelectItem>
+                  <SelectSeparator />
                   {channels.map((channel) => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      {channel.name}
+                    <SelectItem key={channel.id} value={channel.id} className="flex items-center">
+                      <div className="flex items-center">
+                        <Hash className="h-3.5 w-3.5 mr-2 text-cyan-400" />
+                        {channel.name}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -393,7 +451,7 @@ function UserDashboard() {
                 <MessageSquare className="h-12 w-12 text-gray-700 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-400 mb-2">No messages yet</h3>
                 <p className="text-gray-500 max-w-md mx-auto mb-6">
-                  Share your profile link with others to start receiving anonymous messages.
+                  Share your profile link with others to start receiving messages. You won't know who sent them.
                 </p>
                 <Button
                   onClick={copyToClipboard}

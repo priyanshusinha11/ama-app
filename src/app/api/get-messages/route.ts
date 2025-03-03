@@ -19,14 +19,15 @@ export async function GET(request: Request) {
             userId: session.user.id
         };
 
-        // If channelId is provided, filter by channel
-        if (channelId) {
-            whereClause.channelId = channelId;
-        } else if (channelId === null) {
-            // If channelId is explicitly null, show only messages without a channel
+        // If channelId is "none", show only messages without a channel
+        if (channelId === 'none') {
             whereClause.channelId = null;
         }
-        // If channelId is undefined, show all messages
+        // If channelId is provided and not "none", filter by that specific channel
+        else if (channelId) {
+            whereClause.channelId = channelId;
+        }
+        // If channelId is null or undefined, show all messages (no additional filter)
 
         const messages = await prisma.message.findMany({
             where: whereClause,

@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Whisperly - Anonymous Messaging',
-    description: 'Send and receive anonymous messages securely',
+    description: 'Send messages anonymously and receive messages without knowing who sent them',
 };
 
 export default function RootLayout({

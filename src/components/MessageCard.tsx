@@ -72,7 +72,7 @@ export function MessageCard({ message, onDelete, channel }: MessageCardProps) {
             transition={{ duration: 0.3 }}
             className="group relative"
         >
-            <div className="p-5 rounded-lg border border-gray-800 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-all duration-300 shadow-lg hover:shadow-violet-900/10">
+            <div className={`p-5 rounded-lg border ${channel ? 'border-l-4 border-l-cyan-500/50' : 'border-gray-800'} bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-all duration-300 shadow-lg hover:shadow-violet-900/10`}>
                 <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm border border-violet-500/20 flex items-center justify-center">
@@ -128,6 +128,21 @@ export function MessageCard({ message, onDelete, channel }: MessageCardProps) {
 
                 <div className="pl-2 border-l-2 border-violet-500/30">
                     <p className="text-gray-300 whitespace-pre-wrap">{message.content}</p>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gray-800/50 flex justify-between items-center">
+                    <div className="text-xs text-gray-500">
+                        {channel ? (
+                            <>Received via channel: <span className="text-cyan-400">{channel.name}</span></>
+                        ) : (
+                            <span className="text-violet-400">Direct message (no channel)</span>
+                        )}
+                    </div>
+                    {channel && (
+                        <div className="text-xs text-gray-500">
+                            {window.location.origin}/u/{channel.slug}
+                        </div>
+                    )}
                 </div>
 
                 <div className="absolute -inset-px rounded-lg bg-gradient-to-r from-violet-500/10 via-transparent to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>

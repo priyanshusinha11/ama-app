@@ -291,6 +291,9 @@ export function ChannelManager() {
                                             </Badge>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            <div className="text-xs text-gray-400 mr-2 hidden sm:block">
+                                                {window.location.origin}/u/{session?.user?.username}/{channel.slug}
+                                            </div>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"

@@ -3,7 +3,7 @@ import { MessageSquare } from 'lucide-react';
 
 export const metadata = {
     title: 'Whisperly - Anonymous Messaging',
-    description: 'Send anonymous messages to your friends',
+    description: 'Send messages anonymously - recipients won\'t know who sent them',
 };
 
 export default function UserLayout({
