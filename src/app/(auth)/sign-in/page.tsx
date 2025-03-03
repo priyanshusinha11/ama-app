@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, MessageSquare, User, Lock, ArrowRight } from 'lucide-react';
+import { Loader2, MessageSquare, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -45,13 +45,14 @@ function LoadingSpinner() {
                 <div className="absolute inset-2 rounded-full border-t-2 border-indigo-400 animate-spin animation-delay-150"></div>
                 <div className="absolute inset-4 rounded-full border-t-2 border-cyan-400 animate-spin animation-delay-300"></div>
             </div>
-            <p className="text-gray-400">Redirecting to messages...</p>
+            <p className="text-gray-400">Redirecting to feed...</p>
         </div>
     );
 }
 
 function SignInFormContent() {
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
 
@@ -71,7 +72,7 @@ function SignInFormContent() {
                 identifier: data.identifier,
                 password: data.password,
                 redirect: true,
-                callbackUrl: '/messages'
+                callbackUrl: '/feed'
             });
 
             if (response?.error) {
@@ -149,11 +150,22 @@ function SignInFormContent() {
                                             <div className="relative">
                                                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                                 <Input
-                                                    type="password"
+                                                    type={showPassword ? "text" : "password"}
                                                     placeholder="Enter your password"
                                                     className="pl-10 bg-black/60 border-gray-700 focus:border-violet-500 text-white placeholder:text-gray-500"
                                                     {...field}
                                                 />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
                                             </div>
                                         </FormControl>
                                         <FormMessage className="text-red-400" />
@@ -203,7 +215,7 @@ export default function SignInForm() {
 
     useEffect(() => {
         if (status === 'authenticated') {
-            router.push('/dashboard');
+            router.push('/feed');
         }
     }, [status, router]);
 

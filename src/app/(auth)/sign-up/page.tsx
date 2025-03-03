@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import axios, { AxiosError } from 'axios';
-import { Loader2, MessageSquare, User, Mail, Lock, ArrowRight, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, MessageSquare, User, Mail, Lock, ArrowRight, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signUpSchema } from '@/schemas/signUpSchema';
 import { motion } from 'framer-motion';
@@ -45,6 +45,8 @@ export default function SignUpForm() {
     const [usernameMessage, setUsernameMessage] = useState('');
     const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const debounced = useDebounceCallback(setUsername, 500);
 
     const router = useRouter();
@@ -56,6 +58,7 @@ export default function SignUpForm() {
             username: '',
             email: '',
             password: '',
+            confirmPassword: '',
         },
     });
 
@@ -96,10 +99,10 @@ export default function SignUpForm() {
 
             // Sign in the user automatically after successful registration
             await signIn('credentials', {
-                username: data.username,
+                identifier: data.username,
                 password: data.password,
                 redirect: true,
-                callbackUrl: '/messages'
+                callbackUrl: '/feed'
             });
 
             // No need to set isSubmitting to false here as we're redirecting
@@ -225,12 +228,56 @@ export default function SignUpForm() {
                                             <div className="relative">
                                                 <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                                                 <Input
-                                                    type="password"
+                                                    type={showPassword ? "text" : "password"}
                                                     {...field}
                                                     name="password"
                                                     placeholder="Create a secure password"
                                                     className="pl-10 bg-black/60 border-gray-700 focus:border-violet-500 text-white placeholder:text-gray-500"
                                                 />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage className="text-red-400" />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                name="confirmPassword"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-gray-300">Confirm Password</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                                                <Input
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    {...field}
+                                                    name="confirmPassword"
+                                                    placeholder="Confirm your password"
+                                                    className="pl-10 bg-black/60 border-gray-700 focus:border-violet-500 text-white placeholder:text-gray-500"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-300"
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
                                             </div>
                                         </FormControl>
                                         <FormMessage className="text-red-400" />

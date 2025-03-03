@@ -10,11 +10,11 @@ You can try out the live version of Whisperply here: [Whisperply Live](https://w
 
 - **Anonymous Messaging:** Users can receive messages anonymously through unique links.
 - **AI-Generated Suggestions:** Integrated with Gemini AI to provide intelligent message suggestions.
-- **Dashboard:** A user-friendly dashboard to view received messages.
+- **messages:** A user-friendly messages to view received messages.
 
 ## Tech Stack
 
-- **Frontend:** 
+- **Frontend:**
   - Next.js
   - Tailwind CSS with ShadCN UI
 - **Backend:**
@@ -44,36 +44,46 @@ Ensure you have the following installed:
    ```bash
    git clone https://github.com/priyanshusinha11/ama-app.git
 
+   ```
+
 2. Navigate to the project directory:
 
- ```bash
-   cd ama-app 
-   ``` 
+```bash
+  cd ama-app
+```
+
 3. Install dependencies
+
 ```bash
 yarn install
 # or
 npm install
 ```
+
 4. Set up env variables
+
 ```bash
 MONGODB_URI=your_mongodb_uri
 NEXTAUTH_SECRET=your_nextauth_secret
 GEMINI_API_KEY=your_gemini_api_key
 ```
+
 5. Run the development server
+
 ```bash
 yarn dev
 # or
 npm run dev
 ```
+
 The app will be available at http://localhost:3000
 
 ### Deployment
 
 To deploy Whisperply, you can use Vercel or any other platform that supports Next.js applications. Follow the platform's deployment instructions to get your app live.
 
-#### Try: 
+#### Try:
+
 Live link: https://whisperly-beta.vercel.app/
 
 ### Contributing
@@ -85,4 +95,3 @@ Contributions are welcome! Please follow these guidelines:
 - Commit your changes (git commit -am 'Add new feature').
 - Push to the branch (git push origin feature-branch).
 - Create a new Pull Request.
-
