@@ -1,41 +1,48 @@
-# Whisperply - Anonymous Messaging App
+# Whisperly - Anonymous Messaging Application
 
-Whisperply is an anonymous messaging application that allows users to receive messages anonymously via unique links. The app features email verification for secure sign-ups and leverages AI to generate message suggestions.
+Whisperly is a modern anonymous messaging application that allows users to receive messages anonymously via unique links. The app features user authentication, channels for organizing messages, and stories functionality with AI-powered message suggestions.
 
 ## Live Demo
 
-You can try out the live version of Whisperply here: [Whisperply Live](https://whisperly-beta.vercel.app/)
+You can try out the live version of Whisperly here: [Whisperly Live](https://whisperly-beta.vercel.app/)
 
 ## Features
 
-- **Anonymous Messaging:** Users can receive messages anonymously through unique links.
-- **AI-Generated Suggestions:** Integrated with Gemini AI to provide intelligent message suggestions.
-- **messages:** A user-friendly messages to view received messages.
+- **Anonymous Messaging:** Users can receive messages anonymously through unique links
+- **User Authentication:** Secure sign-up and login with email verification
+- **Channels:** Create dedicated channels for different types of messages
+- **Stories:** Share temporary content that expires after 24 hours
+- **AI-Generated Suggestions:** Integrated with Google Generative AI to provide intelligent message suggestions
+- **Responsive Design:** Modern UI built with Tailwind CSS and ShadCN UI components
 
 ## Tech Stack
 
 - **Frontend:**
-  - Next.js
+  - Next.js 14 (App Router)
+  - React 18
   - Tailwind CSS with ShadCN UI
+  - Framer Motion for animations
+  - Embla Carousel for carousels
 - **Backend:**
-  - Node.js
-  - Express.js
-- **Database:**
-  - MongoDB (Mongoose)
+  - Next.js API Routes
+  - Prisma ORM
+  - PostgreSQL Database
+- **Authentication:**
+  - NextAuth.js
 - **AI Integration:**
-  - Gemini AI
+  - Google Generative AI (@ai-sdk/google)
 
 ## Getting Started
 
-To get started with Whisperply locally, follow these steps:
+To get started with Whisperly locally, follow these steps:
 
 ### Prerequisites
 
 Ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (v14 or later)
-- [MongoDB](https://www.mongodb.com/try/download/community) (for local development, or use a cloud-based MongoDB service)
-- [Yarn](https://classic.yarnpkg.com/en/docs/install/) (or npm)
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [PostgreSQL](https://www.postgresql.org/download/) (or use a cloud-based PostgreSQL service)
+- [npm](https://www.npmjs.com/) or [yarn](https://classic.yarnpkg.com/en/docs/install/)
 
 ### Installation
 
@@ -43,55 +50,86 @@ Ensure you have the following installed:
 
    ```bash
    git clone https://github.com/priyanshusinha11/ama-app.git
-
    ```
 
 2. Navigate to the project directory:
 
-```bash
-  cd ama-app
-```
+   ```bash
+   cd ama-app
+   ```
 
-3. Install dependencies
+3. Install dependencies:
 
-```bash
-yarn install
-# or
-npm install
-```
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-4. Set up env variables
+4. Set up environment variables:
 
-```bash
-MONGODB_URI=your_mongodb_uri
-NEXTAUTH_SECRET=your_nextauth_secret
-GEMINI_API_KEY=your_gemini_api_key
-```
+   Create a `.env` file in the root directory with the following variables:
 
-5. Run the development server
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/ama_app"
+   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="your-nextauth-secret"
+   GOOGLE_CLIENT_ID="your-google-client-id"
+   GOOGLE_CLIENT_SECRET="your-google-client-secret"
+   GOOGLE_API_KEY="your-google-api-key"
+   RESEND_API_KEY="your-resend-api-key"
+   ```
 
-```bash
-yarn dev
-# or
-npm run dev
-```
+5. Set up the database:
 
-The app will be available at http://localhost:3000
+   ```bash
+   npx prisma migrate dev
+   ```
 
-### Deployment
+6. Run the development server:
 
-To deploy Whisperply, you can use Vercel or any other platform that supports Next.js applications. Follow the platform's deployment instructions to get your app live.
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-#### Try:
+   The app will be available at http://localhost:3000
 
-Live link: https://whisperly-beta.vercel.app/
+## Database Schema
 
-### Contributing
+The application uses PostgreSQL with Prisma ORM and includes the following models:
+
+- **User:** User authentication and profile information
+- **Account:** OAuth account information
+- **Session:** User session data
+- **Message:** Messages sent to users
+- **Channel:** Channels created by users for receiving messages
+- **Story:** Temporary content that expires after a set time
+- **Like:** Likes on stories
+- **VerificationToken:** Email verification tokens
+
+## Deployment
+
+Whisperly is currently deployed on Vercel and can be accessed at: [https://whisperly-beta.vercel.app/](https://whisperly-beta.vercel.app/)
+
+To deploy Whisperly yourself, you can use Vercel or any other platform that supports Next.js applications:
+
+1. Push your code to a GitHub repository
+2. Connect your repository to Vercel
+3. Configure the environment variables
+4. Deploy the application
+
+## Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
-- Fork the repository.
-- Create a new branch (git checkout -b feature-branch).
-- Commit your changes (git commit -am 'Add new feature').
-- Push to the branch (git push origin feature-branch).
-- Create a new Pull Request.
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature-branch`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature-branch`)
+5. Create a new Pull Request
+
+## License
+
+This project is licensed under the MIT License.
