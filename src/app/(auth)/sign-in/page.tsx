@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { signInSchema } from '@/schemas/signInChema';
 import { useEffect, useState } from 'react';
@@ -22,7 +22,7 @@ import { Loader2 } from 'lucide-react';
 
 function LoadingSpinner() {
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-800">
+        <div className="flex justify-center items-center min-h-[calc(100vh-100px)] bg-gray-800">
             <Loader2 className="h-8 w-8 animate-spin text-white" />
         </div>
     );
@@ -30,6 +30,8 @@ function LoadingSpinner() {
 
 export default function SignInForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -47,10 +49,10 @@ export default function SignInForm() {
     }, []);
 
     useEffect(() => {
-        if (session) {
-            router.replace('/dashboard');
+        if (status === 'authenticated' && session) {
+            router.push(callbackUrl);
         }
-    }, [session, router]);
+    }, [session, status, router, callbackUrl]);
 
     const { toast } = useToast();
     const onSubmit = async (data: z.infer<typeof signInSchema>) => {
@@ -60,6 +62,7 @@ export default function SignInForm() {
                 redirect: false,
                 identifier: data.identifier,
                 password: data.password,
+                callbackUrl,
             });
 
             if (result?.error) {
@@ -81,7 +84,11 @@ export default function SignInForm() {
 
             if (!result?.error) {
                 // Wait for session to be updated
-                router.replace('/dashboard');
+                toast({
+                    title: 'Success',
+                    description: 'Signed in successfully',
+                });
+                // Router will handle redirect in the useEffect
             }
         } catch (error) {
             console.error('Sign in error:', error);
@@ -95,12 +102,20 @@ export default function SignInForm() {
     };
 
     // Don't render anything until mounted to prevent hydration errors
-    if (!mounted || status === 'loading') {
+    if (!mounted) {
+        return null;
+    }
+
+    if (status === 'loading') {
+        return <LoadingSpinner />;
+    }
+
+    if (status === 'authenticated') {
         return <LoadingSpinner />;
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-800">
+        <div className="flex justify-center items-center min-h-[calc(100vh-100px)] bg-gray-800">
             <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
                 <div className="text-center">
                     <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
