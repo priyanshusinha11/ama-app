@@ -1,11 +1,10 @@
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { usernameValidation } from '@/schemas/signUpSchema';
 
 export const dynamic = 'force-dynamic';
 
 const UsernameQuerySchema = z.object({
-    username: usernameValidation,
+    username: z.string().min(1, "Username is required"),
 });
 
 export async function GET(request: Request) {
@@ -18,14 +17,10 @@ export async function GET(request: Request) {
         const result = UsernameQuerySchema.safeParse(queryParams);
 
         if (!result.success) {
-            const usernameErrors = result.error.format().username?._errors || [];
             return Response.json(
                 {
                     success: false,
-                    message:
-                        usernameErrors?.length > 0
-                            ? usernameErrors.join(', ')
-                            : 'Invalid query parameters',
+                    message: "Invalid username parameter",
                 },
                 { status: 400 }
             );
@@ -42,8 +37,9 @@ export async function GET(request: Request) {
         if (existingUser) {
             return Response.json(
                 {
-                    success: false,
-                    message: 'Username is already taken',
+                    success: true,
+                    message: 'User exists',
+                    isAcceptingMessages: existingUser.isAcceptingMessages
                 },
                 { status: 200 }
             );
@@ -51,19 +47,19 @@ export async function GET(request: Request) {
 
         return Response.json(
             {
-                success: true,
-                message: 'Username is unique',
+                success: false,
+                message: 'User not found',
             },
             { status: 200 }
         );
     } catch (error) {
-        console.error('Error checking username:', error);
+        console.error('Error checking if user exists:', error);
         return Response.json(
             {
                 success: false,
-                message: 'Error checking username',
+                message: 'Error checking if user exists',
             },
             { status: 500 }
         );
     }
-}
+} 

@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
-import { Message } from '@/types/prisma';
-import { ApiResponse } from '@/types/ApiResponse';
+import { Message, Channel, MessageWithChannel } from '@/types/prisma';
+import { ApiResponse, MessageResponse, ChannelResponse, UserResponse } from '@/types/ApiResponse';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
 import * as z from 'zod';
 import axios from 'axios';
@@ -73,6 +73,7 @@ function UserDashboard() {
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [acceptMessages, setAcceptMessages] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const { toast } = useToast();
@@ -92,13 +93,19 @@ function UserDashboard() {
     if (!session?.user?.id) return;
 
     try {
+      setIsRefreshing(true);
       const url = selectedChannelId
         ? `/api/get-messages?channelId=${selectedChannelId}`
         : '/api/get-messages';
 
-      const response = await axios.get<ApiResponse<any>>(url);
+      const response = await axios.get<MessageResponse>(url);
       if (response.data.success && response.data.messages) {
-        setMessages(response.data.messages as MessageWithChannel[]);
+        setMessages(response.data.messages);
+        toast({
+          title: 'Messages Refreshed',
+          description: 'Your messages have been updated',
+          className: 'bg-black/80 border-violet-500 text-white',
+        });
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -109,6 +116,7 @@ function UserDashboard() {
       });
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, [session?.user?.id, toast, selectedChannelId]);
 
@@ -414,6 +422,25 @@ function UserDashboard() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={fetchMessages}
+                disabled={isRefreshing}
+                className="h-8 w-8 text-gray-400 hover:text-white hover:bg-black/40"
+                title="Refresh messages"
+              >
+                {isRefreshing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-refresh-cw">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                    <path d="M3 21v-5h5" />
+                  </svg>
+                )}
+              </Button>
               <Filter className="h-4 w-4 text-gray-400" />
               <Select onValueChange={handleChannelChange} defaultValue="all">
                 <SelectTrigger className="w-[180px] bg-black/60 border-gray-700 text-gray-300">

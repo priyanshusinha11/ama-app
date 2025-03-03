@@ -56,7 +56,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const foundUser = await prisma.user.findUnique({
+        const foundUser = await prisma.user.findFirst({
             where: { id: session.user.id }
         });
 

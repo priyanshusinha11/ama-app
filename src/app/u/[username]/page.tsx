@@ -64,11 +64,9 @@ function Page() {
     // Check if user exists and is accepting messages
     const checkUser = async () => {
       try {
-        const response = await axios.get(`/api/check-username-unique?username=${params.username}`);
-        // If success is true, username is unique (doesn't exist)
-        if (response.data.success) {
-          setIsUserValid(false);
-        }
+        const response = await axios.get(`/api/check-user-exists?username=${params.username}`);
+        // If success is true, user exists
+        setIsUserValid(response.data.success);
         setIsPageLoading(false);
       } catch (error) {
         console.error('Error checking username:', error);

@@ -48,22 +48,15 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-
-type Channel = {
-    id: string;
-    name: string;
-    slug: string;
-    userId: string;
-    createdAt: string;
-    updatedAt: string;
-};
+import { Channel } from '@/types/prisma';
+import { ChannelResponse } from '@/types/ApiResponse';
 
 export function ChannelManager() {
     const { data: session } = useSession();
     const [channels, setChannels] = useState<Channel[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
     const [copiedChannel, setCopiedChannel] = useState<string | null>(null);
     const { toast } = useToast();
 
@@ -79,7 +72,8 @@ export function ChannelManager() {
         if (!session?.user?.id) return;
 
         try {
-            const response = await axios.get('/api/channels');
+            setIsLoading(true);
+            const response = await axios.get<ChannelResponse>('/api/channels');
             if (response.data.success) {
                 setChannels(response.data.channels);
             }
@@ -87,7 +81,7 @@ export function ChannelManager() {
             console.error('Error fetching channels:', error);
             toast({
                 title: 'Error',
-                description: 'Failed to fetch channels',
+                description: 'Failed to load channels',
                 variant: 'destructive',
             });
         } finally {
@@ -104,11 +98,11 @@ export function ChannelManager() {
 
         setIsSubmitting(true);
         try {
-            const response = await axios.post('/api/channels/create', data);
+            const response = await axios.post<ChannelResponse>('/api/channels/create', data);
             if (response.data.success) {
                 toast({
-                    title: 'Success',
-                    description: 'Channel created successfully!',
+                    title: 'Channel Created',
+                    description: 'Your new channel has been created successfully!',
                     className: 'bg-black/80 border-violet-500 text-white',
                 });
                 form.reset();
@@ -131,11 +125,11 @@ export function ChannelManager() {
 
         setIsDeleting(true);
         try {
-            const response = await axios.delete(`/api/channels/delete/${channelId}`);
+            const response = await axios.delete<ChannelResponse>(`/api/channels/delete/${channelId}`);
             if (response.data.success) {
                 toast({
-                    title: 'Success',
-                    description: 'Channel deleted successfully!',
+                    title: 'Channel Deleted',
+                    description: 'The channel has been deleted successfully!',
                     className: 'bg-black/80 border-violet-500 text-white',
                 });
                 fetchChannels();
@@ -152,22 +146,22 @@ export function ChannelManager() {
         }
     };
 
-    const copyChannelLink = (slug: string) => {
+    const copyChannelLink = useCallback((slug: string) => {
         if (!session?.user?.username) return;
 
         const url = `${window.location.origin}/u/${session.user.username}/${slug}`;
         navigator.clipboard.writeText(url);
         setCopiedChannel(slug);
         toast({
-            title: 'Copied!',
-            description: 'Channel link has been copied to clipboard.',
+            title: 'Link Copied',
+            description: 'Channel link copied to clipboard!',
             className: 'bg-black/80 border-violet-500 text-white',
         });
 
         setTimeout(() => {
             setCopiedChannel(null);
-        }, 2000);
-    };
+        }, 3000);
+    }, [session?.user?.username, toast]);
 
     if (isLoading) {
         return (

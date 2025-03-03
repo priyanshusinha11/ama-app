@@ -4,7 +4,7 @@ export async function POST(request: Request) {
     const { username, content, channelSlug } = await request.json();
 
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user.findFirst({
             where: { username },
         });
 

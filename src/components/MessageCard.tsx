@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { Trash2, Clock, MessageSquare, Hash } from 'lucide-react';
-import { Message } from '@/types/prisma';
+import { Message, Channel } from '@/types/prisma';
 import { ApiResponse } from '@/types/ApiResponse';
 import { useToast } from './ui/use-toast';
 import { Button } from './ui/button';
@@ -24,12 +24,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { motion } from 'framer-motion';
 
 dayjs.extend(relativeTime);
-
-type Channel = {
-    id: string;
-    name: string;
-    slug: string;
-};
 
 interface MessageCardProps {
     message: Message;
@@ -62,6 +56,11 @@ export function MessageCard({ message, onDelete, channel }: MessageCardProps) {
             });
             setIsDeleting(false);
         }
+    };
+
+    // Function to safely display text with apostrophes
+    const safeText = (text: string) => {
+        return text.replace(/'/g, "'");
     };
 
     return (
@@ -127,7 +126,7 @@ export function MessageCard({ message, onDelete, channel }: MessageCardProps) {
                 </div>
 
                 <div className="pl-2 border-l-2 border-violet-500/30">
-                    <p className="text-gray-300 whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-gray-300 whitespace-pre-wrap">{safeText(message.content)}</p>
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-gray-800/50 flex justify-between items-center">
