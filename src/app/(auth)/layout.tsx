@@ -1,16 +1,22 @@
+import AuthProvider from '@/context/AuthProvider';
+
 export const metadata = {
   title: 'Whisplery',
   description: 'Anonymous messaging app',
 }
 
-export default function RootLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   )
 }

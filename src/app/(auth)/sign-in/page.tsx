@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import {
     Form,
     FormField,
@@ -17,9 +17,22 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { signInSchema } from '@/schemas/signInChema';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+
+function LoadingSpinner() {
+    return (
+        <div className="flex justify-center items-center min-h-screen bg-gray-800">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+        </div>
+    );
+}
 
 export default function SignInForm() {
     const router = useRouter();
+    const { data: session, status } = useSession();
+    const [isLoading, setIsLoading] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     const form = useForm<z.infer<typeof signInSchema>>({
         resolver: zodResolver(signInSchema),
@@ -29,34 +42,62 @@ export default function SignInForm() {
         },
     });
 
-    const { toast } = useToast();
-    const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-        const result = await signIn('credentials', {
-            redirect: false,
-            identifier: data.identifier,
-            password: data.password,
-        });
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-        if (result?.error) {
-            if (result.error === 'CredentialsSignin') {
-                toast({
-                    title: 'Login Failed',
-                    description: 'Incorrect username or password',
-                    variant: 'destructive',
-                });
-            } else {
-                toast({
-                    title: 'Error',
-                    description: result.error,
-                    variant: 'destructive',
-                });
-            }
-        }
-
-        if (result?.url) {
+    useEffect(() => {
+        if (session) {
             router.replace('/dashboard');
         }
+    }, [session, router]);
+
+    const { toast } = useToast();
+    const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+        setIsLoading(true);
+        try {
+            const result = await signIn('credentials', {
+                redirect: false,
+                identifier: data.identifier,
+                password: data.password,
+            });
+
+            if (result?.error) {
+                if (result.error === 'CredentialsSignin') {
+                    toast({
+                        title: 'Login Failed',
+                        description: 'Incorrect username or password',
+                        variant: 'destructive',
+                    });
+                } else {
+                    toast({
+                        title: 'Error',
+                        description: result.error,
+                        variant: 'destructive',
+                    });
+                }
+                setIsLoading(false);
+            }
+
+            if (!result?.error) {
+                // Wait for session to be updated
+                router.replace('/dashboard');
+            }
+        } catch (error) {
+            console.error('Sign in error:', error);
+            toast({
+                title: 'Error',
+                description: 'An unexpected error occurred',
+                variant: 'destructive',
+            });
+            setIsLoading(false);
+        }
     };
+
+    // Don't render anything until mounted to prevent hydration errors
+    if (!mounted || status === 'loading') {
+        return <LoadingSpinner />;
+    }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-800">
@@ -91,7 +132,16 @@ export default function SignInForm() {
                                 </FormItem>
                             )}
                         />
-                        <Button className='w-full' type="submit">Sign In</Button>
+                        <Button className='w-full' type="submit" disabled={isLoading}>
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Please wait
+                                </>
+                            ) : (
+                                'Sign In'
+                            )}
+                        </Button>
                     </form>
                 </Form>
                 <div className="text-center mt-4">
