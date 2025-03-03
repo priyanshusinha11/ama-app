@@ -14,10 +14,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { signInSchema } from '@/schemas/signInChema';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 function LoadingSpinner() {
@@ -28,10 +28,9 @@ function LoadingSpinner() {
     );
 }
 
-export default function SignInForm() {
+// This component uses useSearchParams which requires Suspense
+function SignInFormContent() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
     const { data: session, status } = useSession();
     const [isLoading, setIsLoading] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -50,9 +49,9 @@ export default function SignInForm() {
 
     useEffect(() => {
         if (status === 'authenticated' && session) {
-            router.push(callbackUrl);
+            router.push('/dashboard');
         }
-    }, [session, status, router, callbackUrl]);
+    }, [session, status, router]);
 
     const { toast } = useToast();
     const onSubmit = async (data: z.infer<typeof signInSchema>) => {
@@ -62,7 +61,6 @@ export default function SignInForm() {
                 redirect: false,
                 identifier: data.identifier,
                 password: data.password,
-                callbackUrl,
             });
 
             if (result?.error) {
@@ -169,5 +167,14 @@ export default function SignInForm() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Main component wrapped in Suspense
+export default function SignInForm() {
+    return (
+        <Suspense fallback={<LoadingSpinner />}>
+            <SignInFormContent />
+        </Suspense>
     );
 }
