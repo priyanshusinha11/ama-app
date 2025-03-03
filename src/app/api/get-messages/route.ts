@@ -1,13 +1,11 @@
 import { prisma } from '@/lib/prisma';
-import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
-    const _user: User = session?.user;
 
-    if (!session || !_user) {
+    if (!session?.user?.id) {
         return Response.json(
             { success: false, message: 'Not authenticated' },
             { status: 401 }
@@ -17,7 +15,7 @@ export async function GET(request: Request) {
     try {
         const messages = await prisma.message.findMany({
             where: {
-                userId: _user.id
+                userId: session.user.id
             },
             orderBy: {
                 createdAt: 'desc'

@@ -1,24 +1,21 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 import { prisma } from '@/lib/prisma';
-import { User } from 'next-auth';
 
 export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
-    const user: User = session?.user;
-    if (!session || !session.user) {
+    if (!session?.user?.id) {
         return Response.json(
             { success: false, message: 'Not authenticated' },
             { status: 401 }
         );
     }
 
-    const userId = user.id;
     const { acceptMessages } = await request.json();
 
     try {
         const updatedUser = await prisma.user.update({
-            where: { id: userId },
+            where: { id: session.user.id },
             data: { isAcceptingMessages: acceptMessages },
         });
 
@@ -51,9 +48,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
-    const user = session?.user;
-
-    if (!session || !user) {
+    if (!session?.user?.id) {
         return Response.json(
             { success: false, message: 'Not authenticated' },
             { status: 401 }
@@ -62,7 +57,7 @@ export async function GET(request: Request) {
 
     try {
         const foundUser = await prisma.user.findUnique({
-            where: { id: user.id }
+            where: { id: session.user.id }
         });
 
         if (!foundUser) {

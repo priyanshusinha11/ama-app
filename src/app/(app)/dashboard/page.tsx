@@ -10,11 +10,13 @@ import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios, { AxiosError } from 'axios';
 import { Loader2, RefreshCcw } from 'lucide-react';
-import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
+import { z } from 'zod';
+
+type FormData = z.infer<typeof AcceptMessageSchema>;
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -22,25 +24,29 @@ function UserDashboard() {
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
 
   const { toast } = useToast();
+  const { data: session, status } = useSession();
 
   const handleDeleteMessage = (messageId: string) => {
     setMessages(messages.filter((message) => message.id !== messageId));
   };
 
-  const { data: session } = useSession();
-
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(AcceptMessageSchema),
+    defaultValues: {
+      acceptMessages: false,
+    },
   });
 
-  const { register, watch, setValue } = form;
+  const { watch, setValue } = form;
   const acceptMessages = watch('acceptMessages');
 
   const fetchAcceptMessages = useCallback(async () => {
+    if (!session?.user) return;
+
     setIsSwitchLoading(true);
     try {
       const response = await axios.get<ApiResponse>('/api/accept-messages');
-      setValue('acceptMessages', response.data.isAcceptingMessages);
+      setValue('acceptMessages', response.data.isAcceptingMessages ?? false);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -50,16 +56,15 @@ function UserDashboard() {
           'Failed to fetch message settings',
         variant: 'destructive',
       });
+      setValue('acceptMessages', false);
     } finally {
       setIsSwitchLoading(false);
     }
-  }, [setValue, toast]);
+  }, [setValue, toast, session?.user]);
 
-  useEffect(() => {
-    fetchAcceptMessages();
-  }, [fetchAcceptMessages]);
+  const fetchMessages = useCallback(async () => {
+    if (!session?.user) return;
 
-  const fetchMessages = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get<{ messages: Message[] }>('/api/get-messages');
@@ -74,13 +79,18 @@ function UserDashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast, session?.user]);
 
   useEffect(() => {
-    fetchMessages();
-  }, []);
+    if (session?.user) {
+      fetchAcceptMessages();
+      fetchMessages();
+    }
+  }, [session?.user, fetchAcceptMessages, fetchMessages]);
 
-  const onSubmit = async (data: { acceptMessages: boolean }) => {
+  const onSubmit = async (data: FormData) => {
+    if (!session?.user) return;
+
     setIsSwitchLoading(true);
     try {
       const response = await axios.post<ApiResponse>('/api/accept-messages', {
@@ -101,21 +111,26 @@ function UserDashboard() {
           'Failed to update message settings',
         variant: 'destructive',
       });
-      // Reset the switch to its previous state on error
       setValue('acceptMessages', !data.acceptMessages);
     } finally {
       setIsSwitchLoading(false);
     }
   };
 
-  if (!session || !session.user) {
-    return <div></div>;
+  if (status === 'loading') {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
-  const { username } = session.user as User;
+  if (!session?.user) {
+    return null;
+  }
 
-  const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  const profileUrl = `${baseUrl}/u/${username}`;
+  const baseUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : '';
+  const profileUrl = `${baseUrl}/u/${session.user.username}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(profileUrl);
@@ -127,11 +142,26 @@ function UserDashboard() {
 
   return (
     <div className="container mx-auto my-8 p-6 rounded max-w-4xl">
+      <div className="mb-6 p-4 bg-white rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-2">Your Profile Link</h2>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={profileUrl}
+            readOnly
+            className="flex-1 p-2 border rounded"
+          />
+          <Button onClick={copyToClipboard} variant="outline">
+            Copy
+          </Button>
+        </div>
+      </div>
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Your Messages</h1>
         <div className="flex items-center gap-4">
           <Button
-            onClick={fetchMessages}
+            onClick={() => fetchMessages()}
             variant="outline"
             size="icon"
             className="h-8 w-8"
@@ -145,7 +175,7 @@ function UserDashboard() {
               checked={acceptMessages}
               onCheckedChange={(checked) => {
                 setValue('acceptMessages', checked);
-                form.handleSubmit(onSubmit)();
+                onSubmit({ acceptMessages: checked });
               }}
             />
             <label htmlFor="accept-messages">Accept Messages</label>

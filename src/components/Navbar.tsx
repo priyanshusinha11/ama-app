@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
-import { User } from 'next-auth';
 
 function Navbar() {
     const { data: session, status } = useSession();
@@ -12,8 +11,6 @@ function Navbar() {
     if (status === 'loading') {
         return null; // Prevent rendering until session is available
     }
-
-    const user: User = session?.user;
 
     return (
         <nav className="p-4 md:p-6 shadow-md bg-gray-900 text-white">
@@ -23,7 +20,7 @@ function Navbar() {
                 </a>
                 {session ? (
                     <div className="flex items-center space-x-4">
-                        <span>Welcome, {user?.username || user?.email}</span>
+                        <span>Welcome, {session.user.username || session.user.email}</span>
                         {/* Dashboard Button */}
                         <Link href="/dashboard">
                             <Button className="bg-slate-100 text-black" variant='outline'>

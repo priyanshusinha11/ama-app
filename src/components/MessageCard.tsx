@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Message } from '@/types/prisma';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ApiResponse } from '@/types/ApiResponse';
+import { useToast } from './ui/use-toast';
+import { Button } from './ui/button';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,10 +18,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from './ui/button';
-import { useToast } from '@/components/ui/use-toast';
-import { ApiResponse } from '@/types/ApiResponse';
+} from './ui/alert-dialog';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
@@ -52,40 +51,36 @@ export function MessageCard({ message, onDelete }: MessageCardProps) {
     };
 
     return (
-        <Card className="card-bordered">
-            <CardHeader>
-                <div className="flex justify-between items-center">
-                    <CardTitle>{message.content}</CardTitle>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant='destructive'>
-                                <X className="w-5 h-5" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete
-                                    this message.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>
-                                    Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete}>
-                                    Continue
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </div>
-                <div className="text-sm">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex justify-between items-start mb-4">
+                <p className="text-gray-600 text-sm">
                     {dayjs(message.createdAt).fromNow()}
-                </div>
-            </CardHeader>
-            <CardContent></CardContent>
-        </Card>
+                </p>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-red-500"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Message</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to delete this message? This action cannot be undone.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+            <p className="text-gray-800">{message.content}</p>
+        </div>
     );
 }

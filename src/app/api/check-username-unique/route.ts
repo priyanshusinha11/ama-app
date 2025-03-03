@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { usernameValidation } from '@/schemas/signUpSchema';
 
+export const dynamic = 'force-dynamic';
+
 const UsernameQuerySchema = z.object({
     username: usernameValidation,
 });
