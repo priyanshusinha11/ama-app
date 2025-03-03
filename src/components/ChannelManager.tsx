@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -75,7 +75,7 @@ export function ChannelManager() {
         },
     });
 
-    const fetchChannels = async () => {
+    const fetchChannels = useCallback(async () => {
         if (!session?.user?.id) return;
 
         try {
@@ -93,11 +93,11 @@ export function ChannelManager() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [session?.user?.id, toast]);
 
     useEffect(() => {
         fetchChannels();
-    }, [session?.user?.id]);
+    }, [session?.user?.id, fetchChannels]);
 
     const onSubmit = async (data: z.infer<typeof channelSchema>) => {
         if (!session?.user?.id) return;
@@ -320,7 +320,7 @@ export function ChannelManager() {
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle className="text-white">Delete Channel</AlertDialogTitle>
                                                         <AlertDialogDescription className="text-gray-400">
-                                                            Are you sure you want to delete the "{channel.name}" channel? This will also delete all messages in this channel.
+                                                            Are you sure you want to delete the &quot;{channel.name}&quot; channel? This will also delete all messages in this channel.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>

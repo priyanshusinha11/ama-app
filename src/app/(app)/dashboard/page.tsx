@@ -96,9 +96,9 @@ function UserDashboard() {
         ? `/api/get-messages?channelId=${selectedChannelId}`
         : '/api/get-messages';
 
-      const response = await axios.get<ApiResponse<MessageWithChannel[]>>(url);
+      const response = await axios.get<ApiResponse<any>>(url);
       if (response.data.success && response.data.messages) {
-        setMessages(response.data.messages);
+        setMessages(response.data.messages as MessageWithChannel[]);
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -379,7 +379,7 @@ function UserDashboard() {
               )}
 
               <p className="text-sm text-gray-400">
-                Share these links with anyone you want to receive anonymous messages from. People who use these links will know they're messaging you, but you won't know who sent the messages.
+                Share these links with anyone you want to receive anonymous messages from. People who use these links will know they&apos;re messaging you, but you won&apos;t know who sent the messages.
               </p>
             </CardContent>
           </Card>
@@ -451,7 +451,7 @@ function UserDashboard() {
                 <MessageSquare className="h-12 w-12 text-gray-700 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-400 mb-2">No messages yet</h3>
                 <p className="text-gray-500 max-w-md mx-auto mb-6">
-                  Share your profile link with others to start receiving messages. You won't know who sent them.
+                  Share your profile link with others to start receiving messages. You won&apos;t know who sent them.
                 </p>
                 <Button
                   onClick={copyToClipboard}
