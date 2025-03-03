@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { Trash2, Clock, MessageSquare } from 'lucide-react';
+import { Trash2, Clock, MessageSquare, Hash } from 'lucide-react';
 import { Message } from '@/types/prisma';
 import { ApiResponse } from '@/types/ApiResponse';
 import { useToast } from './ui/use-toast';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -24,12 +25,19 @@ import { motion } from 'framer-motion';
 
 dayjs.extend(relativeTime);
 
+type Channel = {
+    id: string;
+    name: string;
+    slug: string;
+};
+
 interface MessageCardProps {
     message: Message;
     onDelete: (messageId: string) => void;
+    channel?: Channel | null;
 }
 
-export function MessageCard({ message, onDelete }: MessageCardProps) {
+export function MessageCard({ message, onDelete, channel }: MessageCardProps) {
     const { toast } = useToast();
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -70,9 +78,16 @@ export function MessageCard({ message, onDelete }: MessageCardProps) {
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm border border-violet-500/20 flex items-center justify-center">
                             <MessageSquare className="h-4 w-4 text-violet-400" />
                         </div>
-                        <div className="flex items-center text-sm text-gray-400">
-                            <Clock className="h-3 w-3 mr-1" />
-                            <span>{dayjs(message.createdAt).fromNow()}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <div className="flex items-center text-sm text-gray-400">
+                                <Clock className="h-3 w-3 mr-1" />
+                                <span>{dayjs(message.createdAt).fromNow()}</span>
+                            </div>
+                            {channel && (
+                                <Badge variant="outline" className="bg-black/60 border-cyan-500/50 text-cyan-300 backdrop-blur-sm">
+                                    <Hash className="h-3 w-3 mr-1" /> {channel.name}
+                                </Badge>
+                            )}
                         </div>
                     </div>
 

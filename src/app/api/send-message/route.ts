@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
-    const { username, content } = await request.json();
+    const { username, content, channelSlug } = await request.json();
 
     try {
         const user = await prisma.user.findUnique({
@@ -22,10 +22,31 @@ export async function POST(request: Request) {
             );
         }
 
+        // If channelSlug is provided, find the channel
+        let channelId = null;
+        if (channelSlug) {
+            const channel = await prisma.channel.findFirst({
+                where: {
+                    userId: user.id,
+                    slug: channelSlug,
+                },
+            });
+
+            if (!channel) {
+                return Response.json(
+                    { message: 'Channel not found', success: false },
+                    { status: 404 }
+                );
+            }
+
+            channelId = channel.id;
+        }
+
         const newMessage = await prisma.message.create({
             data: {
                 content,
                 userId: user.id,
+                channelId,
             },
         });
 

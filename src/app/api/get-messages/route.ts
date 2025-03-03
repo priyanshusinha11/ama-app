@@ -4,6 +4,8 @@ import { authOptions } from '../auth/[...nextauth]/options';
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
+    const url = new URL(request.url);
+    const channelId = url.searchParams.get('channelId');
 
     if (!session?.user?.id) {
         return Response.json(
@@ -13,12 +15,32 @@ export async function GET(request: Request) {
     }
 
     try {
+        const whereClause: any = {
+            userId: session.user.id
+        };
+
+        // If channelId is provided, filter by channel
+        if (channelId) {
+            whereClause.channelId = channelId;
+        } else if (channelId === null) {
+            // If channelId is explicitly null, show only messages without a channel
+            whereClause.channelId = null;
+        }
+        // If channelId is undefined, show all messages
+
         const messages = await prisma.message.findMany({
-            where: {
-                userId: session.user.id
-            },
+            where: whereClause,
             orderBy: {
                 createdAt: 'desc'
+            },
+            include: {
+                channel: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true
+                    }
+                }
             }
         });
 

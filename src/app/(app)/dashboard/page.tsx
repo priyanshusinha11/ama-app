@@ -22,11 +22,22 @@ import {
   User,
   Shield,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Hash,
+  Filter,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ChannelManager } from '@/components/ChannelManager';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Animated gradient background component
 const AnimatedBackground = () => {
@@ -44,9 +55,21 @@ const AnimatedBackground = () => {
 
 type FormData = z.infer<typeof AcceptMessageSchema>;
 
+type Channel = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+type MessageWithChannel = Message & {
+  channel: Channel | null;
+};
+
 function UserDashboard() {
   const { data: session, status } = useSession();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithChannel[]>([]);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
   const [acceptMessages, setAcceptMessages] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -68,7 +91,11 @@ function UserDashboard() {
     if (!session?.user?.id) return;
 
     try {
-      const response = await axios.get<ApiResponse<Message[]>>('/api/get-messages');
+      const url = selectedChannelId
+        ? `/api/get-messages?channelId=${selectedChannelId}`
+        : '/api/get-messages';
+
+      const response = await axios.get<ApiResponse<MessageWithChannel[]>>(url);
       if (response.data.success && response.data.messages) {
         setMessages(response.data.messages);
       }
@@ -82,7 +109,20 @@ function UserDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user?.id, toast]);
+  }, [session?.user?.id, toast, selectedChannelId]);
+
+  const fetchChannels = useCallback(async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const response = await axios.get('/api/channels');
+      if (response.data.success) {
+        setChannels(response.data.channels);
+      }
+    } catch (error) {
+      console.error('Error fetching channels:', error);
+    }
+  }, [session?.user?.id]);
 
   const fetchAcceptMessages = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -132,8 +172,9 @@ function UserDashboard() {
     if (session?.user?.id) {
       fetchMessages();
       fetchAcceptMessages();
+      fetchChannels();
     }
-  }, [session?.user?.id, fetchMessages, fetchAcceptMessages]);
+  }, [session?.user?.id, fetchMessages, fetchAcceptMessages, fetchChannels]);
 
   const copyToClipboard = () => {
     if (!session?.user?.username) return;
@@ -151,6 +192,14 @@ function UserDashboard() {
       setIsCopied(false);
     }, 2000);
   };
+
+  const handleChannelChange = (value: string) => {
+    setSelectedChannelId(value === 'all' ? null : value === 'none' ? 'none' : value);
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChannelId, fetchMessages]);
 
   if (status === 'loading' || isLoading) {
     return (
@@ -258,104 +307,125 @@ function UserDashboard() {
                 Share Your Profile
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Share this link to receive anonymous messages
+                Share your profile link to receive anonymous messages
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative">
-                <div className="flex items-center p-3 bg-black/60 border border-gray-800 rounded-lg overflow-hidden">
-                  <div className="flex-1 truncate text-gray-300">
-                    {window.location.origin}/u/{session?.user?.username}
-                  </div>
-                  <Button
-                    onClick={copyToClipboard}
-                    size="sm"
-                    className="ml-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
-                  >
-                    {isCopied ? (
-                      'Copied!'
-                    ) : (
-                      <>
-                        <Copy className="h-4 w-4 mr-1" /> Copy
-                      </>
-                    )}
-                  </Button>
+            <CardContent className="space-y-4">
+              <div className="bg-black/60 p-3 rounded-md border border-gray-800 flex items-center justify-between">
+                <div className="truncate text-gray-300 text-sm">
+                  {window.location.origin}/u/{session?.user?.username}
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyToClipboard}
+                  className="ml-2 text-gray-400 hover:text-white hover:bg-black/40"
+                >
+                  {isCopied ? (
+                    <span className="text-green-400 flex items-center">
+                      <Check className="h-4 w-4 mr-1" />
+                      Copied!
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </span>
+                  )}
+                </Button>
               </div>
-            </CardContent>
-            <CardFooter>
               <p className="text-sm text-gray-400">
-                {acceptMessages
-                  ? 'Anyone with this link can send you anonymous messages.'
-                  : 'Enable "Accept Messages" to start receiving anonymous messages.'}
+                Share this link with anyone you want to receive anonymous messages from. They won't know who you are unless you tell them.
               </p>
-            </CardFooter>
+            </CardContent>
           </Card>
         </motion.div>
       </div>
 
+      {/* Channel Manager */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="mb-6"
+        className="mb-8"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-violet-400" />
-            Your Messages
-          </h2>
-          <Button
-            onClick={fetchMessages}
-            variant="outline"
-            size="sm"
-            className="border-gray-700 bg-black/40 text-violet-300 hover:bg-black/60 hover:border-violet-500"
-          >
-            <Loader2 className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : 'hidden'}`} />
-            Refresh
-          </Button>
-        </div>
+        <ChannelManager />
+      </motion.div>
 
-        <AnimatePresence>
-          {messages.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-8 text-center"
-            >
-              <div className="mx-auto w-16 h-16 bg-black/60 rounded-full flex items-center justify-center mb-4">
-                <MessageSquare className="h-8 w-8 text-gray-500" />
-              </div>
-              <h3 className="text-xl font-medium text-white mb-2">No Messages Yet</h3>
-              <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                Share your profile link with friends to start receiving anonymous messages.
-              </p>
-              <Button
-                onClick={copyToClipboard}
-                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
-              >
-                <LinkIcon className="h-4 w-4 mr-2" />
-                Copy Profile Link
-              </Button>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <MessageCard message={message} onDelete={handleDeleteMessage} />
-                </motion.div>
-              ))}
+      {/* Messages Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card className="border-gray-800 bg-black/40 backdrop-blur-sm shadow-lg">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-white flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-violet-400" />
+                Your Messages
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                View and manage your received messages
+              </CardDescription>
             </div>
-          )}
-        </AnimatePresence>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-400" />
+              <Select onValueChange={handleChannelChange} defaultValue="all">
+                <SelectTrigger className="w-[180px] bg-black/60 border-gray-700 text-gray-300">
+                  <SelectValue placeholder="Filter by channel" />
+                </SelectTrigger>
+                <SelectContent className="bg-black/90 border-gray-700">
+                  <SelectItem value="all">All messages</SelectItem>
+                  <SelectItem value="none">No channel</SelectItem>
+                  {channels.map((channel) => (
+                    <SelectItem key={channel.id} value={channel.id}>
+                      {channel.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {messages.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-gray-800 rounded-lg">
+                <MessageSquare className="h-12 w-12 text-gray-700 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-400 mb-2">No messages yet</h3>
+                <p className="text-gray-500 max-w-md mx-auto mb-6">
+                  Share your profile link with others to start receiving anonymous messages.
+                </p>
+                <Button
+                  onClick={copyToClipboard}
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy Profile Link
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <AnimatePresence>
+                  {messages.map((message) => (
+                    <motion.div
+                      key={message.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <MessageCard
+                        message={message}
+                        onDelete={handleDeleteMessage}
+                        channel={message.channel}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   );
