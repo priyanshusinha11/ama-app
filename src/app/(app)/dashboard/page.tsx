@@ -9,13 +9,14 @@ import { Message } from '@/types/prisma';
 import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios, { AxiosError } from 'axios';
-import { Loader2, RefreshCcw } from 'lucide-react';
+import { Loader2, RefreshCcw, Copy, Link as LinkIcon, MessageSquare, Bell, BellOff } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type FormData = z.infer<typeof AcceptMessageSchema>;
 
@@ -128,7 +129,10 @@ function UserDashboard() {
   if (status === 'loading' || isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-indigo-600" />
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -145,34 +149,60 @@ function UserDashboard() {
   };
 
   return (
-    <div className="container mx-auto my-8 p-6 rounded max-w-4xl">
-      <div className="mb-6 p-4 bg-white rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-2">Your Profile Link</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={profileUrl}
-            readOnly
-            className="flex-1 p-2 border rounded"
-          />
-          <Button onClick={copyToClipboard} variant="outline">
-            Copy
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto my-8 px-4 sm:px-6 max-w-4xl"
+    >
+      <div className="mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-100">
+        <h2 className="text-xl font-semibold mb-3 flex items-center text-indigo-800">
+          <LinkIcon className="h-5 w-5 mr-2" />
+          Your Profile Link
+        </h2>
+        <p className="text-gray-600 mb-4 text-sm">
+          Share this link with friends to receive anonymous messages
+        </p>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={profileUrl}
+              readOnly
+              className="w-full p-3 pr-10 border border-indigo-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            />
+          </div>
+          <Button
+            onClick={copyToClipboard}
+            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Copy Link
           </Button>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Your Messages</h1>
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-1">Your Messages</h1>
+          <p className="text-gray-600">Manage all your anonymous messages in one place</p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
           <Button
             onClick={() => fetchMessages()}
             variant="outline"
-            size="icon"
-            className="h-8 w-8"
+            size="sm"
+            className="h-9 px-3 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
           >
-            <RefreshCcw className="h-4 w-4" />
+            <RefreshCcw className="h-4 w-4 mr-2" />
+            Refresh
           </Button>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 bg-white p-2 px-4 rounded-full shadow-sm border border-gray-100">
+            {acceptMessages ? (
+              <Bell className="h-4 w-4 text-green-500" />
+            ) : (
+              <BellOff className="h-4 w-4 text-gray-400" />
+            )}
             <Switch
               id="accept-messages"
               disabled={isSwitchLoading}
@@ -181,34 +211,47 @@ function UserDashboard() {
                 setValue('acceptMessages', checked);
                 onSubmit({ acceptMessages: checked });
               }}
+              className="data-[state=checked]:bg-green-500"
             />
-            <label htmlFor="accept-messages">Accept Messages</label>
+            <label htmlFor="accept-messages" className="text-sm font-medium cursor-pointer">
+              {acceptMessages ? 'Accepting Messages' : 'Not Accepting Messages'}
+            </label>
           </div>
         </div>
       </div>
 
       <Separator className="my-6" />
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : messages.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No messages yet</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <MessageCard
-              key={message.id}
-              message={message}
-              onDelete={handleDeleteMessage}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          </div>
+        ) : messages.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-16 bg-white rounded-lg border border-gray-100 shadow-sm"
+          >
+            <MessageSquare className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+            <h3 className="text-xl font-medium text-gray-800 mb-2">No messages yet</h3>
+            <p className="text-gray-500 max-w-md mx-auto">
+              Share your profile link with friends to start receiving anonymous messages
+            </p>
+          </motion.div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <MessageCard
+                key={message.id}
+                message={message}
+                onDelete={handleDeleteMessage}
+              />
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
