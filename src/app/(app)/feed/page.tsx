@@ -26,7 +26,9 @@ import {
     RefreshCw,
     Send,
     ThumbsUp,
-    Sparkles
+    Sparkles,
+    Plus,
+    X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -114,6 +116,122 @@ const StoryCard = ({
     );
 };
 
+// Create Story Modal Component
+const CreateStoryModal = ({
+    isOpen,
+    onClose,
+    onSubmit,
+    isSubmitting
+}: {
+    isOpen: boolean,
+    onClose: () => void,
+    onSubmit: (data: StoryFormValues) => Promise<void>,
+    isSubmitting: boolean
+}) => {
+    const form = useForm<StoryFormValues>({
+        resolver: zodResolver(storySchema),
+        defaultValues: {
+            content: '',
+        },
+    });
+
+    // Reset form when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            form.reset();
+        }
+    }, [isOpen, form]);
+
+    const handleSubmit = async (data: StoryFormValues) => {
+        await onSubmit(data);
+        onClose();
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+            onClick={onClose}
+        >
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="w-full max-w-md"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <Card className="border-gray-800 bg-black/90 backdrop-blur-sm shadow-lg">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-white flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-violet-400" />
+                            Share Your Story
+                        </CardTitle>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                            className="h-8 w-8 rounded-full text-gray-400 hover:text-white hover:bg-gray-800"
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                                <FormField
+                                    control={form.control}
+                                    name="content"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="What's on your mind? Share it anonymously..."
+                                                    className="resize-none min-h-[120px] bg-black/60 border-gray-700 focus:border-violet-500 text-white placeholder:text-gray-500"
+                                                    {...field}
+                                                    autoFocus
+                                                />
+                                            </FormControl>
+                                            <FormMessage className="text-red-400" />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="flex justify-between items-center">
+                                    <div className="text-xs text-gray-500">
+                                        <Clock className="inline-block h-3 w-3 mr-1" />
+                                        Disappears after 24 hours
+                                    </div>
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Sharing...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Send className="mr-2 h-4 w-4" />
+                                                Share Story
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+            </motion.div>
+        </motion.div>
+    );
+};
+
 export default function FeedPage() {
     const { data: session, status } = useSession();
     const [stories, setStories] = useState<Story[]>([]);
@@ -121,15 +239,9 @@ export default function FeedPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
-
-    const form = useForm<StoryFormValues>({
-        resolver: zodResolver(storySchema),
-        defaultValues: {
-            content: '',
-        },
-    });
 
     const fetchStories = useCallback(async (tab: string = activeTab) => {
         try {
@@ -233,9 +345,6 @@ export default function FeedPage() {
                 if (activeTab === 'new') {
                     setStories(prevStories => [response.data.story, ...prevStories]);
                 }
-
-                // Reset the form
-                form.reset();
             }
         } catch (error) {
             console.error('Error creating story:', error);
@@ -247,6 +356,19 @@ export default function FeedPage() {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const openCreateModal = () => {
+        if (status !== 'authenticated') {
+            toast({
+                title: 'Authentication Required',
+                description: 'Please sign in to share a story',
+                variant: 'destructive',
+            });
+            router.push('/sign-in');
+            return;
+        }
+        setIsModalOpen(true);
     };
 
     if (isLoading) {
@@ -273,11 +395,8 @@ export default function FeedPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-8 text-center"
+                className="mb-6 text-center"
             >
-                <div className="inline-block p-4 bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm rounded-full mb-4 border border-violet-500/20">
-                    <MessageSquare className="h-12 w-12 text-violet-400" />
-                </div>
                 <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200">
                     Anonymous Stories
                 </h1>
@@ -286,63 +405,7 @@ export default function FeedPage() {
                 </p>
             </motion.div>
 
-            <div className="max-w-2xl mx-auto mb-8">
-                <Card className="border-gray-800 bg-black/40 backdrop-blur-sm shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <Sparkles className="h-5 w-5 text-violet-400" />
-                            Share Your Story
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <FormField
-                                    control={form.control}
-                                    name="content"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="What's on your mind? Share it anonymously..."
-                                                    className="resize-none min-h-[100px] bg-black/60 border-gray-700 focus:border-violet-500 text-white placeholder:text-gray-500"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage className="text-red-400" />
-                                        </FormItem>
-                                    )}
-                                />
-                                <div className="flex justify-between items-center">
-                                    <div className="text-xs text-gray-500">
-                                        <Clock className="inline-block h-3 w-3 mr-1" />
-                                        Disappears after 24 hours
-                                    </div>
-                                    <Button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Sharing...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Send className="mr-2 h-4 w-4" />
-                                                Share Story
-                                            </>
-                                        )}
-                                    </Button>
-                                </div>
-                            </form>
-                        </Form>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto mb-6">
                 <div className="flex justify-between items-center mb-4">
                     <Tabs defaultValue="new" className="w-full" onValueChange={handleTabChange}>
                         <TabsList className="grid grid-cols-2 bg-black/40 border border-gray-800">
@@ -383,7 +446,7 @@ export default function FeedPage() {
                             </p>
                             {status === 'authenticated' ? (
                                 <Button
-                                    onClick={() => document.querySelector('textarea')?.focus()}
+                                    onClick={openCreateModal}
                                     className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
                                 >
                                     <MessageSquare className="mr-2 h-4 w-4" />
@@ -411,6 +474,33 @@ export default function FeedPage() {
                     )}
                 </div>
             </div>
+
+            {/* Floating Create Story Button */}
+            <motion.div
+                className="fixed bottom-6 right-6 z-10"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300, delay: 0.2 }}
+            >
+                <Button
+                    onClick={openCreateModal}
+                    className="h-14 w-14 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/20"
+                >
+                    <Plus className="h-6 w-6" />
+                </Button>
+            </motion.div>
+
+            {/* Create Story Modal */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <CreateStoryModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        onSubmit={onSubmit}
+                        isSubmitting={isSubmitting}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 } 
