@@ -24,6 +24,7 @@ import { Loader2, MessageSquare, User, Mail, Lock, ArrowRight, CheckCircle, XCir
 import { useRouter } from 'next/navigation';
 import { signUpSchema } from '@/schemas/signUpSchema';
 import { motion } from 'framer-motion';
+import { signIn } from 'next-auth/react';
 
 // Animated gradient background component
 const AnimatedBackground = () => {
@@ -93,10 +94,15 @@ export default function SignUpForm() {
                 className: 'bg-black/80 border-violet-500 text-white',
             });
 
-            // Redirect directly to dashboard since verification is removed
-            router.replace(`/dashboard`);
+            // Sign in the user automatically after successful registration
+            const signInResult = await signIn('credentials', {
+                identifier: data.username,
+                password: data.password,
+                redirect: true,
+                callbackUrl: '/dashboard'
+            });
 
-            setIsSubmitting(false);
+            // No need to set isSubmitting to false here as we're redirecting
         } catch (error) {
             console.error('Error during sign-up:', error);
 
@@ -176,8 +182,8 @@ export default function SignUpForm() {
                                         {!isCheckingUsername && usernameMessage && (
                                             <p
                                                 className={`text-xs mt-1 ${usernameMessage === 'Username is unique'
-                                                        ? 'text-green-500'
-                                                        : 'text-red-400'
+                                                    ? 'text-green-500'
+                                                    : 'text-red-400'
                                                     }`}
                                             >
                                                 {usernameMessage}

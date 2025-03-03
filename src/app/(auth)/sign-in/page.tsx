@@ -70,7 +70,8 @@ function SignInFormContent() {
             const response = await signIn('credentials', {
                 identifier: data.identifier,
                 password: data.password,
-                redirect: false,
+                redirect: true,
+                callbackUrl: '/dashboard'
             });
 
             if (response?.error) {
@@ -82,15 +83,6 @@ function SignInFormContent() {
                 setIsLoading(false);
                 return;
             }
-
-            toast({
-                title: 'Success',
-                description: 'You have successfully signed in!',
-                className: 'bg-black/80 border-violet-500 text-white',
-            });
-
-            router.push('/dashboard');
-            router.refresh();
         } catch (error) {
             console.error('Sign in error:', error);
             toast({
