@@ -66,7 +66,7 @@ type MessageWithChannel = Message & {
   channel: Channel | null;
 };
 
-function UserDashboard() {
+function MessagesPage() {
   const { data: session, status } = useSession();
   const [messages, setMessages] = useState<MessageWithChannel[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -220,7 +220,7 @@ function UserDashboard() {
             <div className="absolute inset-2 rounded-full border-t-2 border-indigo-400 animate-spin animation-delay-150"></div>
             <div className="absolute inset-4 rounded-full border-t-2 border-cyan-400 animate-spin animation-delay-300"></div>
           </div>
-          <p className="text-gray-400">Loading your dashboard...</p>
+          <p className="text-gray-400">Loading your messages...</p>
         </div>
       </div>
     );
@@ -516,4 +516,4 @@ function UserDashboard() {
   );
 }
 
-export default UserDashboard;
+export default MessagesPage;

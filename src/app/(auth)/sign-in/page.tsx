@@ -45,7 +45,7 @@ function LoadingSpinner() {
                 <div className="absolute inset-2 rounded-full border-t-2 border-indigo-400 animate-spin animation-delay-150"></div>
                 <div className="absolute inset-4 rounded-full border-t-2 border-cyan-400 animate-spin animation-delay-300"></div>
             </div>
-            <p className="text-gray-400">Redirecting to dashboard...</p>
+            <p className="text-gray-400">Redirecting to messages...</p>
         </div>
     );
 }
@@ -71,7 +71,7 @@ function SignInFormContent() {
                 identifier: data.identifier,
                 password: data.password,
                 redirect: true,
-                callbackUrl: '/dashboard'
+                callbackUrl: '/messages'
             });
 
             if (response?.error) {

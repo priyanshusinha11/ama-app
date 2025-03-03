@@ -56,13 +56,14 @@ function Navbar() {
                                         Feed
                                     </Button>
                                 </Link>
-                                <Link href="/dashboard">
+                                <Link href="/messages">
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         className="border-gray-700 bg-black/40 text-violet-300 hover:bg-black/60 hover:border-violet-500"
                                     >
-                                        Dashboard
+                                        <MessageSquare className="h-3 w-3 mr-1" />
+                                        Messages
                                         <ChevronRight className="h-3 w-3 ml-1" />
                                     </Button>
                                 </Link>
@@ -125,12 +126,13 @@ function Navbar() {
                                             Feed
                                         </Button>
                                     </Link>
-                                    <Link href="/dashboard" onClick={toggleMenu}>
+                                    <Link href="/messages" onClick={toggleMenu}>
                                         <Button
                                             variant="outline"
                                             className="w-full justify-start border-gray-700 bg-black/40 text-violet-300 hover:bg-black/60 hover:border-violet-500"
                                         >
-                                            Dashboard
+                                            <MessageSquare className="h-3 w-3 mr-2" />
+                                            Messages
                                             <ChevronRight className="h-3 w-3 ml-1" />
                                         </Button>
                                     </Link>

@@ -95,11 +95,11 @@ export default function SignUpForm() {
             });
 
             // Sign in the user automatically after successful registration
-            const signInResult = await signIn('credentials', {
-                identifier: data.username,
+            await signIn('credentials', {
+                username: data.username,
                 password: data.password,
                 redirect: true,
-                callbackUrl: '/dashboard'
+                callbackUrl: '/messages'
             });
 
             // No need to set isSubmitting to false here as we're redirecting
