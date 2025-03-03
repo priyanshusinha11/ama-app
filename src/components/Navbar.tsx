@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
-import { Menu, X, MessageSquare, LogOut, User, ChevronRight } from 'lucide-react';
+import { Menu, X, MessageSquare, LogOut, User, ChevronRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function Navbar() {
@@ -46,6 +46,16 @@ function Navbar() {
                                     </div>
                                     <span className="font-medium">{session.user.username || session.user.email}</span>
                                 </div>
+                                <Link href="/feed">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="border-gray-700 bg-black/40 text-cyan-300 hover:bg-black/60 hover:border-cyan-500"
+                                    >
+                                        <Sparkles className="h-3 w-3 mr-1" />
+                                        Feed
+                                    </Button>
+                                </Link>
                                 <Link href="/dashboard">
                                     <Button
                                         variant="outline"
@@ -106,6 +116,15 @@ function Navbar() {
                                     <span>{session.user.username || session.user.email}</span>
                                 </div>
                                 <div className="flex flex-col space-y-3">
+                                    <Link href="/feed" onClick={toggleMenu}>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start border-gray-700 bg-black/40 text-cyan-300 hover:bg-black/60 hover:border-cyan-500"
+                                        >
+                                            <Sparkles className="h-3 w-3 mr-2" />
+                                            Feed
+                                        </Button>
+                                    </Link>
                                     <Link href="/dashboard" onClick={toggleMenu}>
                                         <Button
                                             variant="outline"
