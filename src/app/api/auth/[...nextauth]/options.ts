@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token._id = user.id;
+                token.id = user.id;
                 token.isAcceptingMessages = user.isAcceptingMessages;
                 token.username = user.username;
             }
@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         },
         async session({ session, token }) {
             if (token) {
-                session.user._id = token._id;
+                session.user.id = token.id;
                 session.user.isAcceptingMessages = token.isAcceptingMessages;
                 session.user.username = token.username;
             }

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         );
     }
 
-    const userId = user._id;
+    const userId = user.id;
     const { acceptMessages } = await request.json();
 
     try {
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
 
     try {
         const foundUser = await prisma.user.findUnique({
-            where: { id: user._id }
+            where: { id: user.id }
         });
 
         if (!foundUser) {

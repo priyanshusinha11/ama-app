@@ -1,5 +1,4 @@
-import dbConnect from '@/lib/dbConnect';
-import UserModel from '@/model/User';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { usernameValidation } from '@/schemas/signUpSchema';
 
@@ -8,8 +7,6 @@ const UsernameQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
-    await dbConnect();
-
     try {
         const { searchParams } = new URL(request.url);
         const queryParams = {
@@ -34,10 +31,11 @@ export async function GET(request: Request) {
 
         const { username } = result.data;
 
-        const existingUser = await UserModel.findOne({
-            username,
+        const existingUser = await prisma.user.findUnique({
+            where: {
+                username,
+            },
         });
-
 
         if (existingUser) {
             return Response.json(
