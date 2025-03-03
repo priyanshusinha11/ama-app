@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { MessageCard } from '@/components/MessageCard';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -7,76 +9,69 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Message } from '@/types/prisma';
 import { ApiResponse } from '@/types/ApiResponse';
-import { zodResolver } from '@hookform/resolvers/zod';
-import axios, { AxiosError } from 'axios';
-import { Loader2, RefreshCcw, Copy, Link as LinkIcon, MessageSquare, Bell, BellOff } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
+import * as z from 'zod';
+import axios from 'axios';
+import {
+  Copy,
+  Link as LinkIcon,
+  MessageSquare,
+  Bell,
+  BellOff,
+  Loader2,
+  User,
+  Shield,
+  Sparkles,
+  ChevronRight
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
+// Animated gradient background component
+const AnimatedBackground = () => {
+  return (
+    <div className="absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-black/90" />
+      <div className="absolute -inset-[10px] opacity-30">
+        <div className="absolute top-0 left-0 right-0 h-[500px] rounded-full bg-gradient-to-r from-violet-600/30 via-cyan-400/30 to-indigo-500/30 blur-[100px] transform-gpu animate-pulse" />
+        <div className="absolute bottom-0 right-0 left-0 h-[500px] rounded-full bg-gradient-to-r from-fuchsia-600/30 via-purple-400/30 to-violet-500/30 blur-[100px] transform-gpu animate-pulse" />
+      </div>
+      <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20" />
+    </div>
+  );
+};
 
 type FormData = z.infer<typeof AcceptMessageSchema>;
 
 function UserDashboard() {
+  const { data: session, status } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSwitchLoading, setIsSwitchLoading] = useState(false);
-  const router = useRouter();
-
+  const [acceptMessages, setAcceptMessages] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
   const { toast } = useToast();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push('/sign-in');
-    },
-  });
+
+  // Redirect if not authenticated
+  if (status === 'unauthenticated') {
+    window.location.href = '/sign-in';
+  }
 
   const handleDeleteMessage = (messageId: string) => {
-    setMessages(messages.filter((message) => message.id !== messageId));
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message.id !== messageId)
+    );
   };
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(AcceptMessageSchema),
-    defaultValues: {
-      acceptMessages: false,
-    },
-  });
-
-  const { watch, setValue } = form;
-  const acceptMessages = watch('acceptMessages');
-
-  const fetchAcceptMessages = useCallback(async () => {
-    if (!session?.user?.id) return;
-
-    setIsSwitchLoading(true);
-    try {
-      const response = await axios.get<ApiResponse>('/api/accept-messages');
-      setValue('acceptMessages', response.data.isAcceptingMessages ?? false);
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-      toast({
-        title: 'Error',
-        description:
-          axiosError.response?.data.message ??
-          'Failed to fetch message settings',
-        variant: 'destructive',
-      });
-      setValue('acceptMessages', false);
-    } finally {
-      setIsSwitchLoading(false);
-    }
-  }, [setValue, toast, session?.user?.id]);
 
   const fetchMessages = useCallback(async () => {
     if (!session?.user?.id) return;
 
-    setIsLoading(true);
     try {
-      const response = await axios.get<{ messages: Message[] }>('/api/get-messages');
-      setMessages(response.data.messages);
+      const response = await axios.get<ApiResponse<Message[]>>('/api/get-messages');
+      if (response.data.success && response.data.messages) {
+        setMessages(response.data.messages);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -87,171 +82,282 @@ function UserDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, session?.user?.id]);
+  }, [session?.user?.id, toast]);
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      Promise.all([fetchAcceptMessages(), fetchMessages()]).finally(() => {
-        setIsLoading(false);
-      });
+  const fetchAcceptMessages = useCallback(async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const response = await axios.get<ApiResponse<boolean>>('/api/accept-messages');
+      if (response.data.success) {
+        setAcceptMessages(response.data.isAcceptingMessages ?? false);
+      }
+    } catch (error) {
+      console.error('Error fetching accept messages status:', error);
     }
-  }, [session?.user?.id, fetchAcceptMessages, fetchMessages]);
+  }, [session?.user?.id]);
 
   const onSubmit = async (data: FormData) => {
     if (!session?.user?.id) return;
 
-    setIsSwitchLoading(true);
+    setIsSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>('/api/accept-messages', {
         acceptMessages: data.acceptMessages,
       });
 
       if (response.data.success) {
+        setAcceptMessages(data.acceptMessages);
         toast({
-          description: response.data.message,
+          title: 'Success',
+          description: data.acceptMessages
+            ? 'You are now accepting messages!'
+            : 'You are no longer accepting messages.',
+          className: 'bg-black/80 border-violet-500 text-white',
         });
       }
     } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
+      console.error('Error updating accept messages setting:', error);
       toast({
         title: 'Error',
-        description:
-          axiosError.response?.data.message ??
-          'Failed to update message settings',
+        description: 'Failed to update message settings. Please try again.',
         variant: 'destructive',
       });
-      setValue('acceptMessages', !data.acceptMessages);
     } finally {
-      setIsSwitchLoading(false);
+      setIsSubmitting(false);
     }
+  };
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchMessages();
+      fetchAcceptMessages();
+    }
+  }, [session?.user?.id, fetchMessages, fetchAcceptMessages]);
+
+  const copyToClipboard = () => {
+    if (!session?.user?.username) return;
+
+    const url = `${window.location.origin}/u/${session.user.username}`;
+    navigator.clipboard.writeText(url);
+    setIsCopied(true);
+    toast({
+      title: 'Copied!',
+      description: 'Your profile link has been copied to clipboard.',
+      className: 'bg-black/80 border-violet-500 text-white',
+    });
+
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
   };
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-black/95">
+        <AnimatedBackground />
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-indigo-600" />
-          <p className="text-gray-600">Loading your dashboard...</p>
+          <div className="w-16 h-16 relative mx-auto mb-6">
+            <div className="absolute inset-0 rounded-full border-t-2 border-violet-500 animate-spin"></div>
+            <div className="absolute inset-2 rounded-full border-t-2 border-indigo-400 animate-spin animation-delay-150"></div>
+            <div className="absolute inset-4 rounded-full border-t-2 border-cyan-400 animate-spin animation-delay-300"></div>
+          </div>
+          <p className="text-gray-400">Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
-  const baseUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : '';
-  const profileUrl = `${baseUrl}/u/${session?.user?.username}`;
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileUrl);
-    toast({
-      title: 'URL Copied!',
-      description: 'Profile URL has been copied to clipboard.',
-    });
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto my-8 px-4 sm:px-6 max-w-4xl"
-    >
-      <div className="mb-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-100">
-        <h2 className="text-xl font-semibold mb-3 flex items-center text-indigo-800">
-          <LinkIcon className="h-5 w-5 mr-2" />
-          Your Profile Link
-        </h2>
-        <p className="text-gray-600 mb-4 text-sm">
-          Share this link with friends to receive anonymous messages
-        </p>
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          <div className="relative w-full">
-            <input
-              type="text"
-              value={profileUrl}
-              readOnly
-              className="w-full p-3 pr-10 border border-indigo-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            />
-          </div>
-          <Button
-            onClick={copyToClipboard}
-            className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Copy Link
-          </Button>
+    <div className="container mx-auto py-8 px-4 relative min-h-screen">
+      <AnimatedBackground />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-8 text-center"
+      >
+        <div className="inline-block p-4 bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-sm rounded-full mb-4 border border-violet-500/20">
+          <User className="h-12 w-12 text-violet-400" />
         </div>
+        <h1 className="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white via-violet-200 to-indigo-200">
+          Welcome, {session?.user?.username || 'User'}
+        </h1>
+        <p className="text-gray-400 max-w-md mx-auto">
+          Manage your messages and profile settings
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Profile Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="md:col-span-1"
+        >
+          <Card className="border-gray-800 bg-black/40 backdrop-blur-sm shadow-lg h-full">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Shield className="h-5 w-5 text-violet-400" />
+                Your Profile
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Manage your anonymous messaging settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {acceptMessages ? (
+                    <Bell className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <BellOff className="h-5 w-5 text-red-400" />
+                  )}
+                  <span className="text-gray-300">Accept Messages</span>
+                </div>
+                <Switch
+                  checked={acceptMessages}
+                  onCheckedChange={(checked) => {
+                    onSubmit({ acceptMessages: checked });
+                  }}
+                  disabled={isSubmitting}
+                  className="data-[state=checked]:bg-violet-600"
+                />
+              </div>
+
+              <div className="pt-2">
+                <p className="text-sm text-gray-400 mb-2">
+                  {acceptMessages
+                    ? 'You are currently accepting anonymous messages.'
+                    : 'You are not accepting anonymous messages.'}
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Badge variant="outline" className="bg-black/40 border-violet-500/50 text-violet-300 backdrop-blur-sm">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {messages.length} {messages.length === 1 ? 'message' : 'messages'} received
+              </Badge>
+            </CardFooter>
+          </Card>
+        </motion.div>
+
+        {/* Share Profile Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="md:col-span-2"
+        >
+          <Card className="border-gray-800 bg-black/40 backdrop-blur-sm shadow-lg h-full">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <LinkIcon className="h-5 w-5 text-violet-400" />
+                Share Your Profile
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Share this link to receive anonymous messages
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                <div className="flex items-center p-3 bg-black/60 border border-gray-800 rounded-lg overflow-hidden">
+                  <div className="flex-1 truncate text-gray-300">
+                    {window.location.origin}/u/{session?.user?.username}
+                  </div>
+                  <Button
+                    onClick={copyToClipboard}
+                    size="sm"
+                    className="ml-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
+                  >
+                    {isCopied ? (
+                      'Copied!'
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-1" /> Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <p className="text-sm text-gray-400">
+                {acceptMessages
+                  ? 'Anyone with this link can send you anonymous messages.'
+                  : 'Enable "Accept Messages" to start receiving anonymous messages.'}
+              </p>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-1">Your Messages</h1>
-          <p className="text-gray-600">Manage all your anonymous messages in one place</p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-center gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mb-6"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-violet-400" />
+            Your Messages
+          </h2>
           <Button
-            onClick={() => fetchMessages()}
+            onClick={fetchMessages}
             variant="outline"
             size="sm"
-            className="h-9 px-3 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+            className="border-gray-700 bg-black/40 text-violet-300 hover:bg-black/60 hover:border-violet-500"
           >
-            <RefreshCcw className="h-4 w-4 mr-2" />
+            <Loader2 className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : 'hidden'}`} />
             Refresh
           </Button>
-          <div className="flex items-center space-x-3 bg-white p-2 px-4 rounded-full shadow-sm border border-gray-100">
-            {acceptMessages ? (
-              <Bell className="h-4 w-4 text-green-500" />
-            ) : (
-              <BellOff className="h-4 w-4 text-gray-400" />
-            )}
-            <Switch
-              id="accept-messages"
-              disabled={isSwitchLoading}
-              checked={acceptMessages}
-              onCheckedChange={(checked) => {
-                setValue('acceptMessages', checked);
-                onSubmit({ acceptMessages: checked });
-              }}
-              className="data-[state=checked]:bg-green-500"
-            />
-            <label htmlFor="accept-messages" className="text-sm font-medium cursor-pointer">
-              {acceptMessages ? 'Accepting Messages' : 'Not Accepting Messages'}
-            </label>
-          </div>
         </div>
-      </div>
 
-      <Separator className="my-6" />
-
-      <AnimatePresence>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-          </div>
-        ) : messages.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16 bg-white rounded-lg border border-gray-100 shadow-sm"
-          >
-            <MessageSquare className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-medium text-gray-800 mb-2">No messages yet</h3>
-            <p className="text-gray-500 max-w-md mx-auto">
-              Share your profile link with friends to start receiving anonymous messages
-            </p>
-          </motion.div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <MessageCard
-                key={message.id}
-                message={message}
-                onDelete={handleDeleteMessage}
-              />
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+        <AnimatePresence>
+          {messages.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-black/40 backdrop-blur-sm border border-gray-800 rounded-lg p-8 text-center"
+            >
+              <div className="mx-auto w-16 h-16 bg-black/60 rounded-full flex items-center justify-center mb-4">
+                <MessageSquare className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No Messages Yet</h3>
+              <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                Share your profile link with friends to start receiving anonymous messages.
+              </p>
+              <Button
+                onClick={copyToClipboard}
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
+              >
+                <LinkIcon className="h-4 w-4 mr-2" />
+                Copy Profile Link
+              </Button>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <MessageCard message={message} onDelete={handleDeleteMessage} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
   );
 }
 

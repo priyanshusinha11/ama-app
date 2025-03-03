@@ -9,11 +9,13 @@ export const authOptions: NextAuthOptions = {
             id: 'credentials',
             name: 'Credentials',
             credentials: {
-                email: { label: 'Email', type: 'text' },
+                identifier: { label: 'Email or Username', type: 'text' },
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials: any): Promise<any> {
                 try {
+                    console.log('Auth attempt with identifier:', credentials.identifier);
+
                     const user = await prisma.user.findFirst({
                         where: {
                             OR: [
@@ -24,8 +26,11 @@ export const authOptions: NextAuthOptions = {
                     });
 
                     if (!user) {
+                        console.log('No user found with identifier:', credentials.identifier);
                         throw new Error('No user found with this email or username');
                     }
+
+                    console.log('User found:', user.username);
 
                     const isPasswordCorrect = await bcrypt.compare(
                         credentials.password,
@@ -33,11 +38,14 @@ export const authOptions: NextAuthOptions = {
                     );
 
                     if (isPasswordCorrect) {
+                        console.log('Password correct for user:', user.username);
                         return user;
                     } else {
+                        console.log('Incorrect password for user:', user.username);
                         throw new Error('Incorrect password');
                     }
                 } catch (err: any) {
+                    console.error('Auth error:', err.message);
                     throw new Error(err.message);
                 }
             },

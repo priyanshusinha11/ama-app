@@ -30,7 +30,11 @@ export async function GET(request: Request) {
         }
 
         return Response.json(
-            { messages },
+            {
+                success: true,
+                message: 'Messages retrieved successfully',
+                messages
+            },
             {
                 status: 200,
             }

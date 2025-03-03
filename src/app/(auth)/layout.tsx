@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Whisplery',
-  description: 'Anonymous messaging app',
+  title: 'Whisperly - Anonymous Messaging',
+  description: 'The future of anonymous messaging',
 }
 
 export default function AuthLayout({
@@ -9,10 +9,8 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        {children}
-      </div>
+    <div className="min-h-screen">
+      {children}
     </div>
   )
 }
