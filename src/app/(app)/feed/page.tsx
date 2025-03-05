@@ -31,6 +31,39 @@ import {
     X
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// Function to generate a consistent anonymous identity
+const generateMysteriousIdentity = (authorId: string) => {
+    // Use the authorId to create a consistent hash
+    let hash = 0;
+    for (let i = 0; i < authorId.length; i++) {
+        hash = ((hash << 5) - hash) + authorId.charCodeAt(i);
+        hash = hash & hash; // Convert to 32bit integer
+    }
+
+    // Use the hash to select from predefined options
+    const adjectives = [
+        "Mysterious", "Shadow", "Enigmatic", "Cryptic", "Veiled",
+        "Phantom", "Stealth", "Whisper", "Midnight", "Twilight",
+        "Cosmic", "Mystic", "Spectral", "Hidden", "Secret"
+    ];
+
+    const nouns = [
+        "Feline", "Whiskers", "Paws", "Purr", "Meow",
+        "Tabby", "Siamese", "Bengal", "Sphinx", "Calico",
+        "Panther", "Tiger", "Lynx", "Jaguar", "Cheetah"
+    ];
+
+    // Use the hash to select consistent adjective and noun
+    const adjectiveIndex = Math.abs(hash) % adjectives.length;
+    const nounIndex = Math.abs(hash >> 8) % nouns.length;
+
+    // Use the hash to generate a number
+    const number = Math.abs(hash % 1000);
+
+    return `${adjectives[adjectiveIndex]} ${nouns[nounIndex]} #${number}`;
+};
 
 // Animated gradient background component
 const AnimatedBackground = () => {
@@ -67,6 +100,9 @@ const StoryCard = ({
         }
     };
 
+    // Generate mysterious identity for this author
+    const mysteriousIdentity = generateMysteriousIdentity(story.authorId);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -79,9 +115,15 @@ const StoryCard = ({
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <div className="bg-gradient-to-br from-violet-600/20 to-indigo-600/20 p-2 rounded-full">
-                                <User className="h-4 w-4 text-violet-400" />
+                                <Image
+                                    src="/bg-free-cat.png"
+                                    alt="Anonymous Cat"
+                                    width={16}
+                                    height={16}
+                                    className="h-4 w-4"
+                                />
                             </div>
-                            <span className="text-gray-300 font-medium">@{story.username || 'anonymous'}</span>
+                            <span className="text-gray-300 font-medium">{mysteriousIdentity}</span>
                         </div>
                         <div className="flex items-center text-xs text-gray-500">
                             <Clock className="h-3 w-3 mr-1" />
