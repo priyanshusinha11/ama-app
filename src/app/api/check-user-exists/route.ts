@@ -8,15 +8,18 @@ const UsernameQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
+    console.log("API Route: /api/check-user-exists invoked.");
     try {
         const { searchParams } = new URL(request.url);
         const queryParams = {
             username: searchParams.get('username'),
         };
+        console.log("API Route: Parsed username:", queryParams.username);
 
         const result = UsernameQuerySchema.safeParse(queryParams);
 
         if (!result.success) {
+            console.log("API Route: Username validation failed.");
             return Response.json(
                 {
                     success: false,
@@ -27,6 +30,7 @@ export async function GET(request: Request) {
         }
 
         const { username } = result.data;
+        console.log(`API Route: Querying Prisma for username: ${username}`);
 
         const existingUser = await prisma.user.findFirst({
             where: {
@@ -34,7 +38,10 @@ export async function GET(request: Request) {
             },
         });
 
+        console.log("API Route: Prisma query result:", existingUser);
+
         if (existingUser) {
+            console.log("API Route: User found. Returning success: true");
             return Response.json(
                 {
                     success: true,
@@ -45,6 +52,7 @@ export async function GET(request: Request) {
             );
         }
 
+        console.log("API Route: User not found. Returning success: false");
         return Response.json(
             {
                 success: false,
@@ -53,7 +61,7 @@ export async function GET(request: Request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Error checking if user exists:', error);
+        console.error('API Route: Error checking if user exists:', error);
         return Response.json(
             {
                 success: false,
