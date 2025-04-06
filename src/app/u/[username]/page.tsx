@@ -64,17 +64,24 @@ function Page() {
     // Check if user exists and is accepting messages
     const checkUser = async () => {
       try {
-        const response = await axios.get(`/api/check-user-exists?username=${params.username}`);
+        // Add a timestamp to force a fresh request, bypassing cache
+        const timestamp = Date.now();
+        const response = await axios.get(
+          `/api/check-user-exists?username=${params.username}&t=${timestamp}`
+        );
         // If success is true, user exists
         setIsUserValid(response.data.success);
         setIsPageLoading(false);
       } catch (error) {
         console.error('Error checking username:', error);
+        // Ensure user is marked invalid on error
+        setIsUserValid(false);
         setIsPageLoading(false);
       }
     };
 
     checkUser();
+    // Keep dependency array as is, timestamp is generated inside the effect
   }, [params.username]);
 
   const StringSplit = (sentence: string): string[] => {
